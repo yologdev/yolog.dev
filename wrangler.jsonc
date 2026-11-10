@@ -1,10 +1,12 @@
-// yolog.dev: a static site on Cloudflare Workers (static assets only, no code).
+// yolog.dev: a static site on Cloudflare Workers. The only code, src/worker.js,
+// runs for /media/* alone, to answer video Range requests.
 // `node build.mjs` writes dist/; wrangler runs it before every deploy.
 {
   "name": "yolog-dev",
   "compatibility_date": "2026-10-01",
   "build": { "command": "node build.mjs" },
-  "assets": { "directory": "./dist", "not_found_handling": "404-page" },
+  "main": "src/worker.js",
+  "assets": { "directory": "./dist", "binding": "ASSETS", "not_found_handling": "404-page", "run_worker_first": ["/media/*"] },
   "routes": [
     { "pattern": "yolog.dev", "custom_domain": true },
     { "pattern": "www.yolog.dev", "custom_domain": true }

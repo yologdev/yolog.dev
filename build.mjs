@@ -130,7 +130,7 @@ ${h2("anywhere", "Cloud to laptop, and back.")}
 ${lead("One build runs in the cloud and on your own machine. Move a repository between them and nothing changes but where it lives.")}
 ${grid(280, [
 card("cloud", "On Cloudflare", "Workers and Durable Objects, with Git storage on Artifacts and large files on R2. One object per repository, close to its agents."),
-card("self-hosted", "On your machine", "The same Worker under local workerd, with local Git storage. Works offline; sync back to the cloud when you want."),
+card("self-hosted", "On your machine", "The same Worker under local workerd, with local Git storage. Works offline. Export a repository to move it to the cloud, or back."),
 card("no lock-in", "As plain Git", "Every export can be written out as a Git repository you can clone, inspect and keep, with or without yolog."),
 ])}`),
 row("#2647E8", "44ae…91 · security", `
@@ -180,6 +180,7 @@ const html = `<!doctype html>
 <link rel="canonical" href="https://yolog.dev/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script src="/analytics.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap">
