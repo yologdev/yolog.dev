@@ -177,6 +177,7 @@ const html = `<!doctype html>
 <meta property="og:description" content="Versioned, portable state for AI agents: history, checkpoints and branches. Run it anywhere.">
 <meta property="og:image" content="https://yolog.dev/media/yolog-30s-poster.jpg">
 <meta property="og:url" content="https://yolog.dev/">
+<link rel="canonical" href="https://yolog.dev/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
