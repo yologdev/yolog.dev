@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/SpaceGrotesk-latin.woff2") format("woff2"); font-weight: 300 700; font-style: normal; }
+      :root {
+        --ground: #0b1120;
+        --ink: #eef2fa;
+        --muted: #9aa6bf;
+        --accent: #4f74ff;
+        --accent-text: #8ba2ff;
+        --branch: #f2b35b;
+        --saved: #7fe0b0;
+        --lost: #ff7a7a;
+        --line: #26304a;
+        --card: #121a2e;
+        --display: "Space Grotesk", sans-serif;
+        --mono: "JetBrains Mono", monospace;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--ground); }
+      #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--ground); font-family: var(--display); color: var(--ink); }
+
+      .bg-grid { position: absolute; inset: -80px; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 80px 80px; opacity: 0.35; z-index: 0; }
+      .bg-glow { position: absolute; width: 1400px; height: 1400px; left: 260px; top: -160px; border-radius: 50%; background: radial-gradient(circle, rgba(79, 116, 255, 0.22) 0%, rgba(79, 116, 255, 0) 62%); z-index: 0; }
+
+      .scene { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; z-index: 1; }
+      .scene:not(#s1) { opacity: 0; }
+      .scene-content { width: 100%; height: 100%; padding: 120px 160px; display: flex; flex-direction: column; justify-content: center; gap: 48px; box-sizing: border-box; }
+
+      .eyebrow { font-family: var(--mono); font-size: 30px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-text); }
+      .h1 { font-size: 112px; font-weight: 700; line-height: 1.0; letter-spacing: -0.04em; }
+      .h2 { font-size: 88px; font-weight: 700; line-height: 1.04; letter-spacing: -0.035em; }
+      .sub { font-size: 42px; font-weight: 400; line-height: 1.35; color: var(--muted); letter-spacing: -0.01em; }
+      .row { display: flex; align-items: center; gap: 64px; }
+      .center { align-items: center; text-align: center; }
+
+      /* S1 — hook */
+      .card { width: 820px; flex: none; background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 36px 40px; display: flex; flex-direction: column; gap: 18px; position: relative; }
+      .card-top { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 28px; color: var(--muted); }
+      .log { font-family: var(--mono); font-size: 30px; display: flex; gap: 22px; }
+      .log .t { color: var(--accent-text); flex: none; }
+      .lost { position: absolute; inset: 0; border-radius: 20px; background: rgba(11, 17, 32, 0.82); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 44px; font-weight: 500; color: var(--lost); letter-spacing: 0.06em; border: 2px solid var(--lost); }
+      .chips { display: flex; gap: 16px; flex-wrap: wrap; }
+      .chip { font-family: var(--mono); font-size: 30px; padding: 10px 22px; border-radius: 999px; border: 2px solid var(--lost); color: var(--lost); }
+
+      /* S2 — reveal */
+      .brand { display: flex; align-items: center; gap: 40px; }
+      .wordmark { font-size: 200px; font-weight: 700; letter-spacing: -0.05em; line-height: 1; }
+
+      /* S3 — what it saves */
+      .tree { width: 1240px; background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 30px 44px; display: flex; flex-direction: column; gap: 6px; }
+      .tree-head { font-family: var(--mono); font-size: 28px; color: var(--muted); padding-bottom: 14px; border-bottom: 1px solid var(--line); margin-bottom: 10px; display: flex; justify-content: space-between; }
+      .tree-head b { color: var(--accent-text); font-weight: 500; }
+      .entry { display: flex; align-items: baseline; gap: 28px; padding: 12px 0; }
+      .entry .path { font-family: var(--mono); font-size: 36px; color: var(--ink); width: 520px; flex: none; white-space: nowrap; }
+      .entry .what { font-size: 38px; color: var(--muted); white-space: nowrap; }
+      .entry .bullet { width: 16px; height: 16px; border-radius: 50%; background: var(--saved); flex: none; transform: translateY(-6px); }
+
+      /* S4 — checkpoints */
+      .timeline { position: relative; height: 240px; width: 1600px; }
+      .tl-line { position: absolute; left: 0; right: 0; top: 69px; height: 6px; background: var(--accent); border-radius: 3px; transform-origin: left center; }
+      .dots { position: absolute; left: 60px; right: 60px; top: 0; height: 240px; display: flex; justify-content: space-between; }
+      .dot { width: 220px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+      .dot-turn { font-size: 30px; color: var(--muted); height: 34px; line-height: 34px; }
+      .dot-mark { position: relative; z-index: 1; width: 40px; height: 40px; border-radius: 50%; background: var(--ground); border: 6px solid var(--accent); }
+      .dot-id { font-family: var(--mono); font-size: 28px; color: var(--accent-text); }
+      .ring { position: absolute; width: 84px; height: 84px; border-radius: 50%; border: 4px solid var(--saved); }
+      .restore { position: absolute; font-family: var(--mono); font-size: 30px; color: var(--saved); white-space: nowrap; }
+      .powers { display: flex; gap: 24px; }
+      .power { font-size: 40px; font-weight: 700; letter-spacing: -0.01em; padding: 16px 30px; border-radius: 16px; background: var(--card); border: 2px solid var(--line); }
+      .power span { font-family: var(--mono); font-weight: 400; margin-right: 14px; }
+
+      /* S5 — call to action */
+      .url { font-family: var(--mono); font-size: 46px; color: var(--ink); padding: 18px 34px; border: 2px solid var(--accent); border-radius: 16px; }
+      .facts { font-family: var(--mono); font-size: 30px; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-width="1920" data-height="1080" data-start="0" data-duration="30">
+      <div class="bg-grid" id="bg-grid"></div>
+      <div class="bg-glow" id="bg-glow"></div>
+
+      <!-- S1 — hook (0–6) -->
+      <div id="s1" class="scene">
+        <div class="scene-content">
+          <div class="row">
+            <div class="card" id="s1-card">
+              <div class="card-top"><span>agent · session 7</span><span>running</span></div>
+              <div class="log s1-log"><span class="t">turn 41</span><span>user: plan the migration</span></div>
+              <div class="log s1-log"><span class="t">turn 42</span><span>agent: drafted 3 steps</span></div>
+              <div class="log s1-log"><span class="t">turn 43</span><span>agent: wrote notes.md</span></div>
+              <div class="log s1-log"><span class="t">turn 44</span><span>agent: running step 1…</span></div>
+              <div class="lost" id="s1-lost" data-layout-allow-overlap data-layout-allow-occlusion>SESSION LOST</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 40px">
+              <div class="h1" id="s1-title">Your agent just forgot everything.</div>
+              <div class="chips">
+                <span class="chip s1-chip">crash</span>
+                <span class="chip s1-chip">redeploy</span>
+                <span class="chip s1-chip">new machine</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S2 — reveal (6–11.5) -->
+      <div id="s2" class="scene">
+        <div class="scene-content center" style="gap: 44px">
+          <div class="eyebrow" id="s2-eyebrow">Durable infrastructure for AI agents</div>
+          <div class="brand">
+            <svg width="190" height="190" viewBox="0 0 28 28" fill="none" aria-hidden="true" id="s2-mark">
+              <circle cx="6" cy="14" r="3.5" stroke="#4F74FF" stroke-width="2" />
+              <circle cx="22" cy="7" r="3.5" stroke="#4F74FF" stroke-width="2" />
+              <circle cx="22" cy="21" r="3.5" stroke="#F2B35B" stroke-width="2" />
+              <path d="M9.5 14h4c2.5 0 3-7 5-7M13.5 14c2.5 0 3 7 5 7" stroke="#EEF2FA" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            <div class="wordmark" id="s2-word">yolog</div>
+          </div>
+          <div class="sub" id="s2-sub" style="font-size: 58px; color: var(--ink)">Git for your agents' memory.</div>
+        </div>
+      </div>
+
+      <!-- S3 — what it saves (11.5–19) -->
+      <div id="s3" class="scene">
+        <div class="scene-content" style="gap: 40px">
+          <div class="h2" id="s3-title">It saves what your agent keeps.</div>
+          <div class="tree" id="s3-tree">
+            <div class="tree-head"><span>my-agent / main</span><b>checkpoint a8e2…19</b></div>
+            <div class="entry s3-entry"><span class="bullet"></span><span class="path">conversation.jsonl</span><span class="what">every message and turn</span></div>
+            <div class="entry s3-entry"><span class="bullet"></span><span class="path">memory/notes.md</span><span class="what">what it has learned</span></div>
+            <div class="entry s3-entry"><span class="bullet"></span><span class="path">tasks/plan.json</span><span class="what">work in progress</span></div>
+            <div class="entry s3-entry"><span class="bullet"></span><span class="path">tools/runs.jsonl</span><span class="what">tool calls and results</span></div>
+          </div>
+          <div class="sub" id="s3-sub">Any files, any agent. Logs grow by appending.</div>
+        </div>
+      </div>
+
+      <!-- S4 — checkpoints (19–25.5) -->
+      <div id="s4" class="scene">
+        <div class="scene-content" style="gap: 56px">
+          <div class="h2" id="s4-title">Every save is a checkpoint.</div>
+          <div class="timeline">
+            <div class="tl-line" id="s4-line"></div>
+            <div class="dots">
+              <div class="dot s4-dot"><div class="dot-turn">turn 12</div><div class="dot-mark"></div><div class="dot-id">03bf…c4</div></div>
+              <div class="dot s4-dot"><div class="dot-turn">turn 20</div><div class="dot-mark"></div><div class="dot-id">a8e2…19</div></div>
+              <div class="dot s4-dot"><div class="dot-turn">turn 31</div><div class="dot-mark"></div><div class="dot-id">51d0…7a</div></div>
+              <div class="dot s4-dot"><div class="dot-turn">turn 38</div><div class="dot-mark"></div><div class="dot-id">e47b…02</div></div>
+              <div class="dot s4-dot"><div class="dot-turn">turn 44</div><div class="dot-mark"></div><div class="dot-id">9c41…e0</div></div>
+            </div>
+            <!-- Dot 2 is centred at 485px, dot 5 at 1430px (see the long cut). -->
+            <div class="ring" id="s4-ring" style="left: 443px; top: 30px"></div>
+            <div class="restore" id="s4-restore" style="left: 330px; top: 150px">↺ restored to turn 20</div>
+          </div>
+          <div class="powers">
+            <div class="power s4-power" style="border-color: var(--saved)"><span style="color: var(--saved)">↺</span>Go back</div>
+            <div class="power s4-power" style="border-color: var(--branch)"><span style="color: var(--branch)">⑂</span>Branch</div>
+            <div class="power s4-power" style="border-color: var(--accent)"><span style="color: var(--accent-text)">↔</span>Cloud to laptop</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S5 — call to action (25.5–30) -->
+      <div id="s5" class="scene">
+        <div class="scene-content center" style="gap: 40px">
+          <div class="brand" id="s5-brand">
+            <svg width="130" height="130" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+              <circle cx="6" cy="14" r="3.5" stroke="#4F74FF" stroke-width="2" />
+              <circle cx="22" cy="7" r="3.5" stroke="#4F74FF" stroke-width="2" />
+              <circle cx="22" cy="21" r="3.5" stroke="#F2B35B" stroke-width="2" />
+              <path d="M9.5 14h4c2.5 0 3-7 5-7M13.5 14c2.5 0 3 7 5 7" stroke="#EEF2FA" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            <div class="wordmark" style="font-size: 150px">yolog</div>
+          </div>
+          <div class="url" id="s5-url">github.com/yologdev/yolog</div>
+          <div class="facts" id="s5-facts">Open source · MIT · Run it on Cloudflare or your own machine</div>
+        </div>
+      </div>
+
+      <!-- Sound (generated on fal.ai: ElevenLabs Music and Sound Effects v2). -->
+      <audio id="music" src="assets/audio/music.mp3" data-start="0" data-duration="30" data-track-index="10" data-volume="0.5"></audio>
+      <audio id="a-lost" src="assets/audio/sfx-lost.mp3" data-start="1.6" data-duration="1.2" data-track-index="12" data-volume="0.8"></audio>
+      <audio id="a-reveal" src="assets/audio/sfx-reveal.mp3" data-start="6.0" data-duration="2.0" data-track-index="12" data-volume="0.85"></audio>
+      <audio id="a-w1" src="assets/audio/sfx-whoosh.mp3" data-start="11.45" data-duration="0.6" data-track-index="11" data-volume="0.45"></audio>
+      <audio id="a-t1" src="assets/audio/sfx-tick.mp3" data-start="12.3" data-duration="0.48" data-track-index="15" data-volume="0.35"></audio>
+      <audio id="a-t2" src="assets/audio/sfx-tick.mp3" data-start="12.9" data-duration="0.48" data-track-index="16" data-volume="0.35"></audio>
+      <audio id="a-t3" src="assets/audio/sfx-tick.mp3" data-start="13.5" data-duration="0.48" data-track-index="15" data-volume="0.35"></audio>
+      <audio id="a-t4" src="assets/audio/sfx-tick.mp3" data-start="14.1" data-duration="0.48" data-track-index="16" data-volume="0.35"></audio>
+      <audio id="a-w2" src="assets/audio/sfx-whoosh.mp3" data-start="18.95" data-duration="0.6" data-track-index="11" data-volume="0.45"></audio>
+      <audio id="a-rewind" src="assets/audio/sfx-rewind.mp3" data-start="21.3" data-duration="1.0" data-track-index="12" data-volume="0.6"></audio>
+      <audio id="a-s1" src="assets/audio/sfx-success.mp3" data-start="22.9" data-duration="0.8" data-track-index="13" data-volume="0.45"></audio>
+
+      <div id="fade" style="position: absolute; inset: 0; background: var(--ground); opacity: 0; z-index: 5"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      var tl = gsap.timeline({ paused: true });
+      var D = 30;
+
+      tl.to("#bg-grid", { x: 40, y: 20, duration: D, ease: "none" }, 0);
+      tl.to("#bg-glow", { scale: 1.12, opacity: 0.75, duration: 3, ease: "sine.inOut", yoyo: true, repeat: Math.max(0, Math.floor(D / 3) - 1) }, 0);
+
+      function push(from, to, T) {
+        tl.to(from, { x: -1920, duration: 0.55, ease: "power3.inOut" }, T);
+        tl.fromTo(to, { x: 1920, opacity: 1 }, { x: 0, duration: 0.55, ease: "power3.inOut" }, T);
+      }
+
+      // S1 — hook (0–6). The headline is on screen from frame 0 (thumbnail).
+      tl.from("#s1-title", { scale: 1.05, transformOrigin: "left center", duration: 1.0, ease: "power2.out" }, 0);
+      tl.from("#s1-card", { x: -60, opacity: 0, duration: 0.5, ease: "power3.out" }, 0.1);
+      tl.from(".s1-log", { y: 18, opacity: 0, duration: 0.3, ease: "power2.out", stagger: 0.2 }, 0.3);
+      tl.from("#s1-lost", { opacity: 0, scale: 1.08, duration: 0.18, ease: "expo.out" }, 1.6);
+      tl.fromTo("#s1-card", { x: 0 }, { x: 12, duration: 0.06, ease: "none", repeat: 5, yoyo: true, immediateRender: false }, 1.6);
+      tl.to("#s1-title", { color: "#FF7A7A", duration: 0.12, ease: "none", yoyo: true, repeat: 1 }, 1.6);
+      tl.from(".s1-chip", { scale: 0.6, opacity: 0, duration: 0.35, ease: "back.out(2)", stagger: 0.18 }, 2.4);
+
+      // S1 → S2 at 6.0: zoom through into the reveal.
+      tl.to("#s1", { scale: 1.5, opacity: 0, duration: 0.4, ease: "power3.in" }, 5.8);
+      tl.fromTo("#s2", { scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.55, ease: "expo.out" }, 6.0);
+      tl.from("#s2-mark", { rotation: -90, scale: 0.4, opacity: 0, duration: 0.7, ease: "back.out(1.7)" }, 6.2);
+      tl.from("#s2-word", { x: 60, opacity: 0, duration: 0.55, ease: "expo.out" }, 6.45);
+      tl.from("#s2-eyebrow", { y: -20, opacity: 0, duration: 0.45, ease: "power2.out" }, 7.0);
+      tl.from("#s2-sub", { y: 30, opacity: 0, duration: 0.55, ease: "power3.out" }, 7.4);
+
+      // S2 → S3 at 11.5: what it saves (read time ≈ 4.5 s after the last line).
+      push("#s2", "#s3", 11.5);
+      tl.from("#s3-title", { y: 40, opacity: 0, duration: 0.5, ease: "power3.out" }, 11.9);
+      tl.from("#s3-tree", { y: 30, opacity: 0, duration: 0.45, ease: "power2.out" }, 12.1);
+      tl.from(".s3-entry", { x: -40, opacity: 0, duration: 0.4, ease: "back.out(1.4)", stagger: 0.6 }, 12.3);
+      tl.from("#s3-sub", { opacity: 0, y: 20, duration: 0.5, ease: "sine.out" }, 14.8);
+
+      // S3 → S4 at 19.0: checkpoints and what they give you.
+      push("#s3", "#s4", 19.0);
+      tl.from("#s4-title", { y: 40, opacity: 0, duration: 0.5, ease: "power3.out" }, 19.4);
+      tl.from("#s4-line", { scaleX: 0, duration: 1.0, ease: "power2.inOut" }, 19.7);
+      tl.from(".s4-dot", { y: 30, opacity: 0, duration: 0.35, ease: "back.out(2)", stagger: 0.18 }, 19.8);
+      tl.from("#s4-ring", { x: 945, opacity: 0, duration: 1.0, ease: "power3.inOut" }, 21.2);
+      tl.from("#s4-restore", { y: 16, opacity: 0, duration: 0.4, ease: "power2.out" }, 22.1);
+      tl.from(".s4-power", { y: 30, opacity: 0, duration: 0.4, ease: "expo.out", stagger: 0.25 }, 22.8);
+
+      // S4 → S5 at 25.5: crossfade into the close; fade to ground at the end.
+      tl.to("#s4", { opacity: 0, duration: 0.5, ease: "power1.inOut" }, 25.5);
+      tl.fromTo("#s5", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power1.inOut" }, 25.7);
+      tl.from("#s5-brand", { scale: 0.85, opacity: 0, duration: 0.6, ease: "expo.out" }, 25.9);
+      tl.from("#s5-url", { y: 24, opacity: 0, duration: 0.5, ease: "back.out(1.6)" }, 26.4);
+      tl.from("#s5-facts", { opacity: 0, duration: 0.6, ease: "sine.out" }, 26.9);
+      tl.to("#fade", { opacity: 1, duration: 0.7, ease: "power1.in" }, 29.3);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
