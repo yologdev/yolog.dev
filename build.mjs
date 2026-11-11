@@ -162,6 +162,7 @@ row("#2647E8", "9c41…e0 · main · head", `
 <h2 id="cta-title" style="margin: 0; ${G}; font-weight: 700; font-size: clamp(40px, 6.4vw, 88px); letter-spacing: -0.04em; line-height: 0.98; max-width: 12em">Give your agents a memory they can keep.</h2>
 <div style="display: flex; flex-wrap: wrap; gap: 12px">
 <a href="https://github.com/yologdev/yolog" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 26px; border-radius: 10px; background: #2647E8; color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 17px">Follow on GitHub</a>
+<a href="/agents" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 26px; border-radius: 10px; border: 1px solid #AEB6C4; color: ${INK}; text-decoration: none; font-weight: 600; font-size: 17px">Set up with your agent</a>
 <a href="https://docs.yolog.dev" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 26px; border-radius: 10px; border: 1px solid #AEB6C4; color: ${INK}; text-decoration: none; font-weight: 600; font-size: 17px">Read the docs</a>
 </div>`, true),
 ];
@@ -207,6 +208,7 @@ html{scroll-behavior:smooth}
 <a href="#anywhere" style="color: #B4BDD0; text-decoration: none; padding: 12px 0">Run anywhere</a>
 <a href="#security" style="color: #B4BDD0; text-decoration: none; padding: 12px 0">Security</a>
 <a href="#faq" style="color: #B4BDD0; text-decoration: none; padding: 12px 0">FAQ</a>
+<a href="/agents" style="color: #B4BDD0; text-decoration: none; padding: 12px 0">Set up with your agent</a>
 <a href="https://docs.yolog.dev" style="color: #B4BDD0; text-decoration: none; padding: 12px 0">Docs</a>
 <a href="https://github.com/yologdev/yolog" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid #3A4666; color: #EEF2FA; text-decoration: none; font-weight: 500">GitHub</a>
 </div>
@@ -218,7 +220,7 @@ html{scroll-behavior:smooth}
 <p style="margin: 0; font-size: clamp(18px, 1.7vw, 23px); line-height: 1.55; color: #B4BDD0; max-width: 40rem">Versioned, portable state for AI agents: append-only history, checkpoints and branches for everything they remember. Publish from any runtime, fork from any point, take the whole history with you.</p>
 <div style="display: flex; flex-wrap: wrap; gap: 12px; padding-top: 6px">
 ${btn("#watch", "Watch the 30-second film", true)}
-${btn("https://github.com/yologdev/yolog", "View on GitHub", false)}
+${btn("/agents", "Set up with your agent", false)}
 </div>
 </section>
 ${art()}
@@ -250,11 +252,98 @@ ${rows.join("\n")}
 </body>
 </html>
 `;
+// --- /agents: hand the setup to the person's own agent.
+const PROMPT = "Read https://yolog.dev/agents.md and set up yolog for this project.";
+const step = (n, t, d) => `<li style="display: flex; gap: 16px"><span style="flex: none; ${M}; font-size: 15px; color: ${BLUE_L}; padding-top: 2px">${n}</span><div><p style="margin: 0; ${G}; font-weight: 600; font-size: 19px; color: #FFFFFF">${t}</p><p style="margin: 6px 0 0; font-size: 16px; line-height: 1.6; color: #B4BDD0">${d}</p></div></li>`;
+const agentsHtml = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Set up yolog with your agent</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Paste one line into Claude Code, Codex or any coding agent, and it sets up yolog for your project: on your machine or in your own Cloudflare account.">
+<meta property="og:title" content="Set up yolog with your agent">
+<meta property="og:description" content="One line for your coding agent, and your project keeps its agents' state as a versioned history.">
+<meta property="og:image" content="https://yolog.dev/media/yolog-30s-poster.jpg">
+<meta property="og:url" content="https://yolog.dev/agents">
+<link rel="canonical" href="https://yolog.dev/agents">
+<link rel="alternate" type="text/markdown" href="/agents.md">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script src="/analytics.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:${INK}}
+a{color:${BLUE_L}}a:hover{color:#FFFFFF}
+#copy:focus-visible{outline:3px solid ${AMBER};outline-offset:2px}
+</style>
+</head>
+<body>
+<div style="font-family: Inter, system-ui, sans-serif; color: #EEF2FA; background: ${INK}; min-height: 100vh">
+<header>
+<nav aria-label="Main" style="max-width: 1040px; margin: 0 auto; padding: 18px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px">
+<a href="/" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #EEF2FA">${mark("#EEF2FA")}<span style="${G}; font-weight: 700; font-size: 24px; letter-spacing: -0.03em">yolog</span></a>
+<div style="display: flex; flex-wrap: wrap; gap: 4px 26px; font-size: 15px">
+<a href="/" style="color: #B4BDD0; text-decoration: none; padding: 12px 0">Home</a>
+<a href="https://docs.yolog.dev" style="color: #B4BDD0; text-decoration: none; padding: 12px 0">Docs</a>
+</div>
+</nav>
+</header>
+<main style="max-width: 1040px; margin: 0 auto; padding: clamp(40px, 7vw, 96px) 24px clamp(64px, 8vw, 112px); display: flex; flex-direction: column; gap: clamp(48px, 6vw, 72px)">
+<section style="display: flex; flex-direction: column; gap: 24px">
+<p style="margin: 0; ${M}; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: ${BLUE_L}">Set up with your agent</p>
+<h1 style="margin: 0; ${G}; font-weight: 700; font-size: clamp(40px, 6.4vw, 80px); line-height: 0.98; letter-spacing: -0.045em; max-width: 11em">Let your agent set up <span style="color: ${AMBER}">yolog.</span></h1>
+<p style="margin: 0; font-size: clamp(18px, 1.7vw, 21px); line-height: 1.6; color: #B4BDD0; max-width: 38rem">Paste this line into Claude Code, Codex or any coding agent that can run commands. It reads the instructions, asks you two questions, and sets yolog up for the project it is working on.</p>
+<div style="display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; max-width: 860px">
+<code id="prompt" style="flex: 1 1 420px; min-width: 0; display: flex; align-items: center; padding: 18px 20px; border-radius: 12px; background: #131B2E; border: 1px solid #2A3654; ${M}; font-size: 16px; line-height: 1.5; color: #EEF2FA; overflow-wrap: anywhere">${PROMPT}</code>
+<button id="copy" type="button" style="flex: none; min-height: 56px; padding: 0 26px; border: 0; border-radius: 12px; background: #2647E8; color: #FFFFFF; font: 600 17px Inter, system-ui, sans-serif; cursor: pointer">Copy</button>
+</div>
+<p style="margin: 0; font-size: 15px; color: #9AA6BF">The instructions are plain text: <a href="/agents.md">read them yourself</a> before you hand them over.</p>
+</section>
+<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: clamp(32px, 5vw, 64px)">
+<div style="display: flex; flex-direction: column; gap: 20px">
+<h2 style="margin: 0; ${G}; font-weight: 700; font-size: 28px; letter-spacing: -0.03em">What your agent does</h2>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 20px">
+${step("01", "Asks where yolog runs", "On your machine, offline, in a few minutes. Or in your own Cloudflare account, so the state outlives the machine.")}
+${step("02", "Starts or deploys it", "It asks you again before it creates anything in your Cloudflare account.")}
+${step("03", "Gives the project its own token", "For one owner, written to a private file that Git ignores.")}
+${step("04", "Creates the project's repository", "Then publishes a first checkpoint and reads it back, to prove it works.")}
+${step("05", "Tells you what it did", "Where yolog runs, how to start it again, and when the token expires.")}
+</ol>
+</div>
+<div style="display: flex; flex-direction: column; gap: 20px">
+<h2 style="margin: 0; ${G}; font-weight: 700; font-size: 28px; letter-spacing: -0.03em">What stays private</h2>
+${dcard("Tokens never reach the chat", "The agent writes every token straight to a file only you can read. It never prints one, and never puts one on a command line.")}
+${dcard("The operator token stays out of the project", "The project gets a token for its own owner only: it cannot reach any other owner's state.")}
+${dcard("Your state stays with you", "On your machine or in your own Cloudflare account. Nothing goes to us.")}
+</div>
+</section>
+<section style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 24px; border-top: 1px solid #1E2942; padding-top: 32px">
+<p style="margin: 0; font-size: 17px; color: #B4BDD0; max-width: 36rem">Rather do it yourself? The quick start takes about five minutes.</p>
+${btn("https://docs.yolog.dev/start/quick-start/", "Open the quick start", false)}
+</section>
+</main>
+</div>
+<script>
+document.getElementById("copy").addEventListener("click", async (e) => {
+  const b = e.currentTarget;
+  try { await navigator.clipboard.writeText(${JSON.stringify(PROMPT)}); b.textContent = "Copied"; }
+  catch { const r = document.createRange(); r.selectNodeContents(document.getElementById("prompt")); getSelection().removeAllRanges(); getSelection().addRange(r); b.textContent = "Press Ctrl+C"; }
+  window.posthog?.capture?.("agent_prompt_copied");
+  setTimeout(() => (b.textContent = "Copy"), 2000);
+});
+</script>
+</body>
+</html>
+`;
+
 const out = new URL("./dist/", import.meta.url);
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 cpSync(new URL("./public/", import.meta.url), out, { recursive: true });
 writeFileSync(new URL("index.html", out), html);
+writeFileSync(new URL("agents.html", out), agentsHtml); // served at /agents
 writeFileSync(new URL("404.html", out), `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Not found — yolog</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"></head>
