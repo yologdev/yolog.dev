@@ -261,7 +261,7 @@ const agentsHtml = `<!doctype html>
 <meta charset="utf-8">
 <title>Set up yolog with your agent</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Paste one line into Claude Code, Codex or any coding agent, and it sets up yolog for your project: on your machine or in your own Cloudflare account.">
+<meta name="description" content="Paste one line into Claude Code, Codex or any coding agent: it signs you up for yolog's free tier with your email and connects your project.">
 <meta property="og:title" content="Set up yolog with your agent">
 <meta property="og:description" content="One line for your coding agent, and your project keeps its agents' state as a versioned history.">
 <meta property="og:image" content="https://yolog.dev/media/yolog-30s-poster.jpg">
@@ -294,9 +294,10 @@ a{color:${BLUE_L}}a:hover{color:#FFFFFF}
 <section style="display: flex; flex-direction: column; gap: 24px">
 <p style="margin: 0; ${M}; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: ${BLUE_L}">Set up with your agent</p>
 <h1 style="margin: 0; ${G}; font-weight: 700; font-size: clamp(40px, 6.4vw, 80px); line-height: 0.98; letter-spacing: -0.045em; max-width: 11em">Let your agent set up <span style="color: ${AMBER}">yolog.</span></h1>
-<p style="margin: 0; font-size: clamp(18px, 1.7vw, 21px); line-height: 1.6; color: #B4BDD0; max-width: 38rem">Paste this line into Claude Code, Codex or any coding agent that can run commands. It reads the instructions, asks you two questions, and sets yolog up for the project it is working on.</p>
+<p style="margin: 0; font-size: clamp(18px, 1.7vw, 21px); line-height: 1.6; color: #B4BDD0; max-width: 38rem">Paste this line into Claude Code, Codex or any coding agent that can run commands. It asks for your email, you read it the code we send, and the project it is working on keeps its state in yolog. Free, one repository.</p>
 <div style="display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; max-width: 860px">
 <code id="prompt" style="flex: 1 1 420px; min-width: 0; display: flex; align-items: center; padding: 18px 20px; border-radius: 12px; background: #131B2E; border: 1px solid #2A3654; ${M}; font-size: 16px; line-height: 1.5; color: #EEF2FA; overflow-wrap: anywhere">${PROMPT}</code>
+<span id="copy-status" role="status" aria-live="polite" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap"></span>
 <button id="copy" type="button" style="flex: none; min-height: 56px; padding: 0 26px; border: 0; border-radius: 12px; background: #2647E8; color: #FFFFFF; font: 600 17px Inter, system-ui, sans-serif; cursor: pointer">Copy</button>
 </div>
 <p style="margin: 0; font-size: 15px; color: #9AA6BF">The instructions are plain text: <a href="/agents.md">read them yourself</a> before you hand them over.</p>
@@ -305,33 +306,39 @@ a{color:${BLUE_L}}a:hover{color:#FFFFFF}
 <div style="display: flex; flex-direction: column; gap: 20px">
 <h2 style="margin: 0; ${G}; font-weight: 700; font-size: 28px; letter-spacing: -0.03em">What your agent does</h2>
 <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 20px">
-${step("01", "Asks where yolog runs", "On your machine, offline, in a few minutes. Or in your own Cloudflare account, so the state outlives the machine.")}
-${step("02", "Starts or deploys it", "It asks you again before it creates anything in your Cloudflare account.")}
-${step("03", "Gives the project its own token", "For one owner, written to a private file that Git ignores.")}
+${step("01", "Asks for your email", "We send a 6-digit code there. Nothing else.")}
+${step("02", "Asks you for the code", "It signs you up with it and gets a token for your account.")}
+${step("03", "Keeps the token private", "In a file only you can read, in a folder Git ignores.")}
 ${step("04", "Creates the project's repository", "Then publishes a first checkpoint and reads it back, to prove it works.")}
-${step("05", "Tells you what it did", "Where yolog runs, how to start it again, and when the token expires.")}
+${step("05", "Tells you what it did", "Your account, the repository, and when the token expires.")}
 </ol>
 </div>
 <div style="display: flex; flex-direction: column; gap: 20px">
 <h2 style="margin: 0; ${G}; font-weight: 700; font-size: 28px; letter-spacing: -0.03em">What stays private</h2>
-${dcard("Tokens never reach the chat", "The agent writes every token straight to a file only you can read. It never prints one, and never puts one on a command line.")}
-${dcard("The operator token stays out of the project", "The project gets a token for its own owner only: it cannot reach any other owner's state.")}
-${dcard("Your state stays with you", "On your machine or in your own Cloudflare account. Nothing goes to us.")}
+${dcard("Tokens never reach the chat", "The agent writes the token straight to a file only you can read. It never prints it, and never puts it on a command line.")}
+${dcard("Your email is not stored", "We use it to send the code, and keep only a keyed hash of it, so the same address finds the same account again.")}
+${dcard("Your account only", "The token reaches your own repositories and nothing else. Lose it, and the same email gets you a new one.")}
 </div>
 </section>
 <section style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 24px; border-top: 1px solid #1E2942; padding-top: 32px">
-<p style="margin: 0; font-size: 17px; color: #B4BDD0; max-width: 36rem">Rather do it yourself? The quick start takes about five minutes.</p>
-${btn("https://docs.yolog.dev/start/quick-start/", "Open the quick start", false)}
+<p style="margin: 0; font-size: 17px; color: #B4BDD0; max-width: 36rem">Want no limits, or your state in your own account? Run yolog yourself, on your machine or in your Cloudflare account.</p>
+${btn("https://docs.yolog.dev/start/quick-start/", "Run it yourself", false)}
 </section>
 </main>
 </div>
 <script>
+let reset;
 document.getElementById("copy").addEventListener("click", async (e) => {
-  const b = e.currentTarget;
-  try { await navigator.clipboard.writeText(${JSON.stringify(PROMPT)}); b.textContent = "Copied"; }
-  catch { const r = document.createRange(); r.selectNodeContents(document.getElementById("prompt")); getSelection().removeAllRanges(); getSelection().addRange(r); b.textContent = "Press Ctrl+C"; }
+  const b = e.currentTarget, status = document.getElementById("copy-status");
+  let label, ms = 2000;
+  try { await navigator.clipboard.writeText(${JSON.stringify(PROMPT)}); label = "Copied"; }
+  catch {
+    const r = document.createRange(); r.selectNodeContents(document.getElementById("prompt")); getSelection().removeAllRanges(); getSelection().addRange(r);
+    label = /Mac|iPhone|iPad/.test(navigator.platform) ? "Press \u2318C" : "Press Ctrl+C"; ms = 6000;
+  }
+  b.textContent = label; status.textContent = label === "Copied" ? "Copied to the clipboard" : "Selected: " + label.toLowerCase() + " to copy";
   window.posthog?.capture?.("agent_prompt_copied");
-  setTimeout(() => (b.textContent = "Copy"), 2000);
+  clearTimeout(reset); reset = setTimeout(() => (b.textContent = "Copy"), ms);
 });
 </script>
 </body>

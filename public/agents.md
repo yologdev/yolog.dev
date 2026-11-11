@@ -2,144 +2,106 @@
 
 You are an AI agent, and the person you work for wants yolog for the project you are working on. yolog keeps an agent's state (logs, notes, plans, files) as a versioned history: every publish is a checkpoint, with branches, safe retries and full export. Docs: https://docs.yolog.dev
 
-Do the steps in order. Where a step says **ask**, ask the person and wait for the answer.
+These steps sign the person up for yolog's free tier at `https://api.yolog.dev` (one repository) and connect this project to it. Do them in order. Where a step says **ask**, ask the person and wait for the answer.
 
 ## Rules
 
-- Never print, echo, log or paste a token or a secret, and never put one on a command line. Write each to a file only its owner can read (mode 600), and read it from that file.
-- Before you write a token file inside the project, add its folder to `.gitignore`.
-- The operator token never goes into the project. The project gets a token for one owner only.
-- Do not create cloud resources or deploy anything before the person says yes.
-- If a step fails, stop and show the person the error code and message (never a token).
+- **A token never appears in your output.** The scripts below write it straight to files. Never print, echo, log or paste a token, and never put one on a command line: `curl` reads it from a header file (`-H @.yolog/auth.header`).
+- **Run every command from the project's root folder.** Some steps create `.yolog/` there.
+- **Replace each `<placeholder>` with its value** in the command itself. Do not rely on shell variables: your shell may not keep them between commands.
+- If a step fails, stop and show the person the error's `code` and `message` (never a token).
 
-## 1. Where yolog runs (ask)
+## 1. The person's email (ask)
 
-Ask the person which they want:
+Ask the person for their email address. yolog sends a 6-digit code there; nothing else is sent, and the address is not stored. The same address later finds the same account.
 
-- **On this machine.** Offline, no account, ready in a few minutes. The state lives in a folder on this machine. Good for trying yolog and for local agents.
-- **In their own Cloudflare account.** The state lives in that account and outlives this machine. Needs the Workers Paid plan, with Cloudflare Artifacts and R2 enabled.
-
-A hosted yolog with a free tier is coming; it is not open for sign-up yet.
-
-Either way, check first that `node --version` is 22.13 or later and that `git` is installed, then get the code outside the project:
+## 2. Send the code
 
 ```sh
-git clone https://github.com/yologdev/yolog ~/.yolog/yolog
-cd ~/.yolog/yolog && npm ci
+curl -s https://api.yolog.dev/signup/email -H 'content-type: application/json' -d '{"email": "<email>"}'
 ```
 
-## 2a. On this machine
+It answers `{"sent": true, "expiresInSeconds": 600}`. Other answers:
 
-Start yolog in the background, so it keeps running after this command returns, and keep its data in `~/.yolog/data`:
+| `error.code` (`details.reason`) | Meaning |
+|---|---|
+| `invalid_request` (`invalid_email`) | Not an email address: ask again. |
+| `invalid_request` (`disposable_email`) | Throwaway addresses cannot sign up: ask for another. |
+| `rate_limited` | A code was sent less than a minute ago, or too many this hour. Wait the seconds in the `Retry-After` header. |
+
+## 3. The code (ask), and the token
+
+Ask the person for the 6-digit code from the email. Make sure `.yolog/` is ignored by Git before any token is written:
 
 ```sh
-cd ~/.yolog/yolog
-nohup node scripts/local-host.mjs --data ~/.yolog/data --port 8790 > ~/.yolog/host.log 2>&1 &
-for i in $(seq 1 60); do curl -sf http://127.0.0.1:8790/health && break; sleep 1; done
+touch .gitignore
+grep -qxF '.yolog/' .gitignore || { [ -z "$(tail -c1 .gitignore)" ] || echo >> .gitignore; echo '.yolog/' >> .gitignore; }
 ```
 
-It answers `{"ok":true}`, after about 10 seconds the first time (it builds itself first). If it never does, read `~/.yolog/host.log`. On its first start it writes the operator token to `~/.yolog/data/secrets.json` (field `STATE_ADMIN_TOKEN`, mode 600). Then:
-
-- `YOLOG_URL` is `http://127.0.0.1:8790`
-- `OPERATOR_TOKEN_FILE` is `~/.yolog/data/secrets.json`
-
-Tell the person that yolog stops when the machine restarts, and that the `nohup` command above starts it again with the same data.
-
-## 2b. In their Cloudflare account
-
-Follow https://docs.yolog.dev/start/deploy-to-cloudflare/ from the clone. In short:
+Then verify the code. This writes the token to `.yolog/token` and a header file for `curl` to `.yolog/auth.header` (both readable by the person only), and prints only the owner and the expiry:
 
 ```sh
-cd ~/.yolog/yolog
-npx wrangler login                      # the person signs in, in their browser
-npx wrangler deploy --dry-run --outdir dist/cloudflare
-```
-
-Then **ask** before you go on: the next commands create a storage bucket and deploy a Worker in the person's account, and the Worker costs money to run (https://docs.yolog.dev/operate/costs/).
-
-```sh
-mkdir -p ~/.yolog/cloudflare && chmod 700 ~/.yolog/cloudflare
-(umask 077; openssl rand -hex 32 > ~/.yolog/cloudflare/admin.token; openssl rand -hex 32 > ~/.yolog/cloudflare/token.secret)
-npx wrangler r2 bucket create yolog-artifacts
-npx wrangler secret put STATE_ADMIN_TOKEN < ~/.yolog/cloudflare/admin.token
-npx wrangler secret put STATE_TOKEN_SECRET < ~/.yolog/cloudflare/token.secret
-npx wrangler deploy
-```
-
-Wrangler prints the Worker's URL; `curl -s <url>/health` answers `{"ok":true}`. Then:
-
-- `YOLOG_URL` is that URL, with no trailing slash
-- `OPERATOR_TOKEN_FILE` is `~/.yolog/cloudflare/admin.token`
-
-Tell the person to keep `~/.yolog/cloudflare/admin.token` safe: it can do everything, and it is the only way to mint new tokens.
-
-## 3. A token for this project
-
-Choose an owner name: the person's handle or the project's name, letters, digits, `.`, `_` and `-` (for example `ada` or `acme-web`). Do not use `:` (it names a tenant). The owner holds this project's repositories.
-
-From the project's root, mint a `write` token for that owner, valid for 30 days, straight into `.yolog/token`:
-
-```sh
-mkdir -p .yolog && chmod 700 .yolog
-grep -qxF '.yolog/' .gitignore 2>/dev/null || echo '.yolog/' >> .gitignore
 node --input-type=module -e '
-import { readFileSync, writeFileSync } from "node:fs";
-const [url, file, owner] = process.argv.slice(1);
-let op = readFileSync(file, "utf8").trim();
-if (op.startsWith("{")) op = JSON.parse(op).STATE_ADMIN_TOKEN;
-const r = await fetch(url + "/v1/tokens", { method: "POST",
-  headers: { authorization: "Bearer " + op, "content-type": "application/json" },
-  body: JSON.stringify({ owner, scope: "write", ttlSeconds: 30 * 86400 }) });
-const j = await r.json();
-if (!r.ok) { console.error(j.error?.code, j.error?.message); process.exit(1); }
+import { writeFileSync, mkdirSync } from "node:fs";
+const [email, code] = process.argv.slice(1);
+const r = await fetch("https://api.yolog.dev/signup/verify", { method: "POST",
+  headers: { "content-type": "application/json" }, body: JSON.stringify({ email, code }) });
+const j = await r.json().catch(() => ({ error: { code: "http_" + r.status } }));
+if (!r.ok) { console.error(j.error?.code, j.error?.message ?? "", JSON.stringify(j.error?.details ?? {})); process.exit(1); }
+mkdirSync(".yolog", { recursive: true, mode: 0o700 });
 writeFileSync(".yolog/token", j.token, { mode: 0o600 });
-console.log("wrote .yolog/token, valid 30 days");
-' "$YOLOG_URL" "$OPERATOR_TOKEN_FILE" "<owner>"
+writeFileSync(".yolog/auth.header", "authorization: Bearer " + j.token + "\n", { mode: 0o600 });
+writeFileSync(".yolog/config.json", JSON.stringify({ url: "https://api.yolog.dev", owner: j.owner }, null, 2) + "\n");
+console.log("owner " + j.owner + "; token in .yolog/token; expires " + j.expiresAt);
+' "<email>" "<code>"
 ```
 
-The token can create and write repositories of that owner, and nothing else. When it expires, requests answer `401 unauthorized`: run this step again.
+It needs Node 18 or later. A wrong code answers `wrong_code` with `triesLeft`; after 5 wrong tries, or after 10 minutes, the code is spent (`too_many_tries`, `no_code`): go back to step 2.
+
+The owner (`free:u_…`) is the person's account. The token can create and write that owner's repositories, and nothing else.
+
+**If the project runs as a Cloudflare Worker**, its code cannot read `.yolog/token` at run time. Upload it as a secret instead, from the file: `npx wrangler secret put YOLOG_TOKEN < .yolog/token` (use the name the project's code reads).
 
 ## 4. The project's repository
 
-Create it. Creation is idempotent by `operationId`, so use the project's name: running this again returns the same repository.
+Create it, named after the project. Creating is idempotent by `operationId`: running this again returns the same repository.
 
 ```sh
-curl -s "$YOLOG_URL/v1/owners/<owner>/repositories" \
-  -H "authorization: Bearer $(cat .yolog/token)" -H "content-type: application/json" \
-  -d '{"operationId": "project:<project name>"}'
+curl -s "https://api.yolog.dev/v1/owners/<owner>/repositories" -H @.yolog/auth.header \
+  -H 'content-type: application/json' -d '{"operationId": "project:<project name>"}'
 ```
 
-The answer has the repository's `id` (`r_…`). Write the non-secret settings to `.yolog/config.json`:
+The answer has the repository's `id` (`r_…`). Add it to `.yolog/config.json` as `"repository"`.
 
-```json
-{ "url": "<YOLOG_URL>", "owner": "<owner>", "repository": "<id>" }
-```
+The free tier has one repository. A second `operationId` answers `limit_exceeded`: reuse the first repository (one repository holds any number of files and branches), or see "More than the free tier" below.
 
 ## 5. Check it works
 
 Publish a first checkpoint, then read the head back. `expectedHead` is `null` because the branch is empty.
 
 ```sh
-curl -s "$YOLOG_URL/v1/repositories/<id>/publish" \
-  -H "authorization: Bearer $(cat .yolog/token)" -H "content-type: application/json" \
-  -d '{"expectedHead": null, "operationId": "setup-1",
-       "capture": {"files": [{"path": "README.md", "text": "State for this project, kept by yolog.\n"}],
-                   "message": "Set up yolog"}}'
-curl -s "$YOLOG_URL/v1/repositories/<id>/head" -H "authorization: Bearer $(cat .yolog/token)"
+curl -s "https://api.yolog.dev/v1/repositories/<id>/publish" -H @.yolog/auth.header \
+  -H 'content-type: application/json' \
+  -d '{"expectedHead": null, "operationId": "setup-1", "capture": {"files": [{"path": "README.md", "text": "State for this project, kept by yolog.\n"}], "message": "Set up yolog"}}'
+curl -s "https://api.yolog.dev/v1/repositories/<id>/head" -H @.yolog/auth.header
 ```
 
 The head's `checkpoint` is the one the publish returned.
 
 ## 6. Use it from the project's code
 
-Read the URL and the repository from `.yolog/config.json` and the token from `.yolog/token` at run time; never copy the token into code.
+Read the URL, owner and repository from `.yolog/config.json`, and the token from `.yolog/token`, at run time. Never copy the token into code.
 
 - **Rust:** `yolog = { version = "0.1", features = ["reqwest"] }` from crates.io. https://docs.yolog.dev/reference/rust-client/
-- **JavaScript (Node 22.13+):** `npm install github:yologdev/yolog`, then `import { StateClient } from "yolog/src/client.mjs"`. https://docs.yolog.dev/reference/javascript-client/
-- **Anything else:** the HTTP API. https://docs.yolog.dev/reference/http-api/
+- **Anything else:** the HTTP API, with the token as `authorization: Bearer <token>`. https://docs.yolog.dev/reference/http-api/
 
 Good first uses: append each turn of a conversation to a log (https://docs.yolog.dev/guides/save-a-conversation-log/), and restore after a crash (https://docs.yolog.dev/guides/restore-after-a-crash/).
 
 ## 7. Tell the person
 
-In a few lines: where yolog runs and how to start it again, where the operator token is (outside the project), the owner and the repository, that `.yolog/` is in `.gitignore`, and the date the project's token expires.
+In a few lines: their owner (`free:u_…`), the repository, that the token is in `.yolog/` and Git ignores it, and the date the token expires. To renew it, or on a new machine, repeat steps 2 and 3 with the same email: the same owner comes back with its repository, and a new token.
+
+## More than the free tier
+
+- **Run yolog yourself**, on your machine or in your own Cloudflare account, with no limits but your own: https://docs.yolog.dev/start/quick-start/ and https://docs.yolog.dev/start/deploy-to-cloudflare/
+- **A platform with many users** (a backend that creates them): https://docs.yolog.dev/guides/multi-user-platform/
