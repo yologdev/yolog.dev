@@ -1,0 +1,21 @@
+# yolog
+
+> Versioned, portable state for AI agents: an append-only history of checkpoints and branches for everything an agent remembers (logs, notes, plans, files). Hosted at api.yolog.dev (free tier: sign up by email code), or self-hosted on your machine or Cloudflare account. Exports as plain Git.
+
+To set up yolog for a project, follow https://yolog.dev/agents.md step by step.
+
+## Docs
+
+- [Set up yolog for this project](https://yolog.dev/agents.md): step-by-step instructions for an agent: sign up for the free tier by email code and connect the project
+- [Quick start](https://docs.yolog.dev/start/quick-start/): run yolog locally and publish two checkpoints
+- [Deploy to Cloudflare](https://docs.yolog.dev/start/deploy-to-cloudflare/): run yolog in your own Cloudflare account
+- [HTTP API](https://docs.yolog.dev/reference/http-api/): every endpoint, with request and answer shapes
+- [Tokens and scopes](https://docs.yolog.dev/reference/tokens-and-scopes/): which token can do what
+- [JavaScript client](https://docs.yolog.dev/reference/javascript-client/)
+- [Rust client](https://docs.yolog.dev/reference/rust-client/): the `yolog` crate on crates.io
+
+## Optional
+
+- [Save a conversation log](https://docs.yolog.dev/guides/save-a-conversation-log/)
+- [Restore after a crash](https://docs.yolog.dev/guides/restore-after-a-crash/)
+- [A platform with many users](https://docs.yolog.dev/guides/multi-user-platform/)
