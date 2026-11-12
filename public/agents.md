@@ -4,6 +4,10 @@ You are an AI agent, and the person you work for wants yolog for the project you
 
 These steps sign the person up for yolog's free tier at `https://api.yolog.dev` (one repository) and connect this project to it. Do them in order. Where a step says **ask**, ask the person and wait for the answer.
 
+## Why use it
+
+What you know about this project lives in your context and on this machine, and both are lost easily: the session ends, the context is compacted, the machine changes. With yolog, the next session (yours or another agent's) reads the plan, notes and log that earlier sessions saved and starts where they stopped. Every save is a checkpoint, so a bad edit or a failed experiment can be undone, and risky work goes on a branch while `main` stays as it was.
+
 ## Rules
 
 - **A token never appears in your output.** The scripts below write it straight to files. Never print, echo, log or paste a token, and never put one on a command line: `curl` reads it from a header file (`-H @.yolog/auth.header`).
@@ -88,7 +92,41 @@ curl -s "https://api.yolog.dev/v1/repositories/<id>/head" -H @.yolog/auth.header
 
 The head's `checkpoint` is the one the publish returned.
 
-## 6. Use it from the project's code
+## 6. Connect yourself (MCP)
+
+If you are a coding agent with MCP support (Claude Code, Codex, Cursor and others), connect to yolog's MCP endpoint, `https://api.yolog.dev/mcp`, so you can save and read the project's state with tools in every later session. It needs nothing installed.
+
+**Claude Code:** create `.mcp.json` in the project's root folder (or add the `yolog` entry to an existing one). It holds no secret: it reads the token from `.yolog/token` each time it connects, so it can be committed.
+
+```json
+{
+  "mcpServers": {
+    "yolog": {
+      "type": "http",
+      "url": "https://api.yolog.dev/mcp",
+      "headersHelper": "printf '{\"Authorization\":\"Bearer %s\"}' \"$(cat .yolog/token)\""
+    }
+  }
+}
+```
+
+**Other MCP clients:** the streamable HTTP transport, the URL above, and the header `Authorization: Bearer <token>`. Give the client the token from `.yolog/token` the way it allows (an environment variable or a command, where it has them), and never paste the token into a file that is committed.
+
+Then add this to the project's `CLAUDE.md` or `AGENTS.md` (create it if there is none), so every session uses yolog:
+
+```md
+## Project state
+
+This project keeps its working state in yolog (MCP server `yolog`).
+- At the start of a session, read plan.md, notes.md and decisions.md, and the latest history.
+- Save after meaningful progress: the plan when it changes, decisions with reasons, what was tried and failed, and a summary when a task ends. Append a line to logs/sessions.jsonl for each session.
+- Try risky alternatives on a branch.
+- Never save secrets.
+```
+
+The tools are available from the next session: in Claude Code, after a restart, once the person trusts the project folder and approves the `yolog` server. Anyone else working on the project needs their own `.yolog/token` (steps 1 to 3); without it, the connection is refused. Guide: https://docs.yolog.dev/guides/connect-an-agent/
+
+## 7. Use it from the project's code
 
 Read the URL, owner and repository from `.yolog/config.json`, and the token from `.yolog/token`, at run time. Never copy the token into code.
 
@@ -97,9 +135,9 @@ Read the URL, owner and repository from `.yolog/config.json`, and the token from
 
 Good first uses: append each turn of a conversation to a log (https://docs.yolog.dev/guides/save-a-conversation-log/), and restore after a crash (https://docs.yolog.dev/guides/restore-after-a-crash/).
 
-## 7. Tell the person
+## 8. Tell the person
 
-In a few lines: their owner (`free:u_…`), the repository, that the token is in `.yolog/` and Git ignores it, and the date the token expires. To renew it, or on a new machine, repeat steps 2 and 3 with the same email: the same owner comes back with its repository, and a new token.
+In a few lines: their owner (`free:u_…`), the repository, that the token is in `.yolog/` and Git ignores it, whether you connected yourself through MCP (and that a restart makes the tools available), and the date the token expires. To renew it, or on a new machine, repeat steps 2 and 3 with the same email: the same owner comes back with its repository, and a new token. After a renewal, reconnect the MCP server (in Claude Code, `/mcp`, or a restart).
 
 ## More than the free tier
 
