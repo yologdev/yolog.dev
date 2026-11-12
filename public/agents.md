@@ -2,11 +2,11 @@
 
 You are an AI agent, and the person you work for wants yolog for the project you are working on. yolog keeps an agent's state (logs, notes, plans, files) as a versioned history: every publish is a checkpoint, with branches, safe retries and full export. Docs: https://docs.yolog.dev
 
+These steps sign the person up for yolog's free tier at `https://api.yolog.dev` (one repository) and connect this project to it. Do them in order. Where a step says **ask**, ask the person and wait for the answer.
+
 ## Why use it
 
 What you know about this project lives in your context and on this machine, and both are lost easily: the session ends, the context is compacted, the machine changes. With yolog, the next session (yours or another agent's) reads the plan, notes and log that earlier sessions saved and starts where they stopped. Every save is a checkpoint, so a bad edit or a failed experiment can be undone, and risky work goes on a branch while `main` stays as it was.
-
-These steps sign the person up for yolog's free tier at `https://api.yolog.dev` (one repository) and connect this project to it. Do them in order. Where a step says **ask**, ask the person and wait for the answer.
 
 ## Rules
 
@@ -110,7 +110,7 @@ If you are a coding agent with MCP support (Claude Code, Codex, Cursor and other
 }
 ```
 
-**Other MCP clients:** the streamable HTTP transport, the URL above, and the header `Authorization: Bearer <token>`, read from `.yolog/token`. Never paste the token into a file that is committed.
+**Other MCP clients:** the streamable HTTP transport, the URL above, and the header `Authorization: Bearer <token>`. Give the client the token from `.yolog/token` the way it allows (an environment variable or a command, where it has them), and never paste the token into a file that is committed.
 
 Then add this to the project's `CLAUDE.md` or `AGENTS.md` (create it if there is none), so every session uses yolog:
 
@@ -124,7 +124,7 @@ This project keeps its working state in yolog (MCP server `yolog`).
 - Never save secrets.
 ```
 
-The tools are available from the next session: in Claude Code, after a restart, and once the person trusts the project folder. Guide: https://docs.yolog.dev/guides/connect-an-agent/
+The tools are available from the next session: in Claude Code, after a restart, once the person trusts the project folder and approves the `yolog` server. Anyone else working on the project needs their own `.yolog/token` (steps 1 to 3); without it, the connection is refused. Guide: https://docs.yolog.dev/guides/connect-an-agent/
 
 ## 7. Use it from the project's code
 
@@ -137,7 +137,7 @@ Good first uses: append each turn of a conversation to a log (https://docs.yolog
 
 ## 8. Tell the person
 
-In a few lines: their owner (`free:u_…`), the repository, that the token is in `.yolog/` and Git ignores it, whether you connected yourself through MCP (and that a restart makes the tools available), and the date the token expires. To renew it, or on a new machine, repeat steps 2 and 3 with the same email: the same owner comes back with its repository, and a new token.
+In a few lines: their owner (`free:u_…`), the repository, that the token is in `.yolog/` and Git ignores it, whether you connected yourself through MCP (and that a restart makes the tools available), and the date the token expires. To renew it, or on a new machine, repeat steps 2 and 3 with the same email: the same owner comes back with its repository, and a new token. After a renewal, reconnect the MCP server (in Claude Code, `/mcp`, or a restart).
 
 ## More than the free tier
 
