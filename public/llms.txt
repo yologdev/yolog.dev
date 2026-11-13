@@ -8,7 +8,7 @@ To set up yolog for a project, follow https://yolog.dev/agents.md step by step.
 
 - [Set up yolog for this project](https://yolog.dev/agents.md): step-by-step instructions for an agent: sign up for the free tier by email code and connect the project
 - [Connect a coding agent (MCP)](https://docs.yolog.dev/guides/connect-an-agent/): yolog's tools for Claude Code, Codex and other MCP clients at https://api.yolog.dev/mcp, nothing to install
-- [View in a browser](https://docs.yolog.dev/guides/view-in-a-browser/): a read-only viewer at https://api.yolog.dev/view; a person signs in with the token in `.yolog/token`
+- [View in a browser](https://docs.yolog.dev/guides/view-in-a-browser/): a read-only viewer at https://app.yolog.dev; a person signs in with the token in `.yolog/token`
 - [Quick start](https://docs.yolog.dev/start/quick-start/): run yolog locally and publish two checkpoints
 - [Deploy to Cloudflare](https://docs.yolog.dev/start/deploy-to-cloudflare/): run yolog in your own Cloudflare account
 - [HTTP API](https://docs.yolog.dev/reference/http-api/): every endpoint, with request and answer shapes
