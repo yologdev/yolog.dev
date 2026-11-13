@@ -1,6 +1,6 @@
 # yolog
 
-> Git for your agents: the whole agent (identity, skills, memory, logs, plans, files, runs and decisions) as an append-only history of checkpoints and branches. Hosted at api.yolog.dev (free tier: sign up by email code; people read it at app.yolog.dev), or self-hosted on your machine or Cloudflare account. Exports as plain Git.
+> Git for your agents: versioned, portable state for AI agents. Everything an agent saves (logs, notes, plans, files) is kept as an append-only history of checkpoints and branches. Hosted as a free preview at api.yolog.dev (sign up by email code; people read it at app.yolog.dev), or self-hosted on your machine or Cloudflare account. Exports as plain Git.
 
 To set up yolog for a project, follow https://yolog.dev/agents.md step by step.
 

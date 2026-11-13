@@ -51,7 +51,7 @@ const mark = (ink) => `<svg width="30" height="30" viewBox="0 0 28 28" fill="non
 const rows = [
 row("#2647E8", "03bf…c4 · the problem", `
 ${h2("why", "An agent should outlive the run.")}
-${lead("An agent is more than its model: its identity and rules, its skills, what it has learned, and the record of what it did and why. Today that lives in a process, a vendor's session store or a pile of notes. The process crashes, the service redeploys, the work moves to a new machine, and the agent is gone. yolog keeps every version of all of it, as a history you can trust, branch and carry between machines.")}
+${lead("An agent is more than its model: it is also its conversations, plans and notes, what it has learned, and the record of what it did. Today that lives in a process, a vendor's session store or a pile of files. The process crashes, the service redeploys, the work moves to a new machine, and the agent is gone. yolog keeps every version of all of it, as a history you can trust, branch and carry between machines.")}
 <div style="background: ${INK}; border-radius: 16px; padding: clamp(22px, 3vw, 36px); display: flex; flex-direction: column; max-width: 860px">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; ${M}; font-size: 14px; color: #9AA6BF; padding-bottom: 16px"><span>my-agent / main</span><span style="color: ${BLUE_L}">checkpoint a8e2…19</span></div>
 ${fileRow("logs/session.jsonl", "every message and tool call")}
@@ -135,7 +135,7 @@ card("no lock-in", "As plain Git", "Every export can be written out as a Git rep
 ])}`),
 row("#2647E8", "44ae…91 · security", `
 ${h2("security", "Your data stays yours.")}
-${lead("Run yolog in your own cloud account or on your own server, and your agents' state never leaves it. The hosted free tier keeps no email addresses, and its sign-in only reads.")}
+${lead("Run yolog in your own cloud account or on your own server, and your agents' state never leaves it. The hosted service is a free preview: it keeps no email addresses and its sign-in only reads, but it has had no independent security review, so keep anything sensitive on a yolog you run.")}
 <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; max-width: 900px">
 ${[["Scoped, expiring tokens", "Signed capability tokens per owner or per repository. A token never outlives or widens the one that minted it; an owner can revoke them all at once.", 0], ["Hardened serving", "Bounded requests and rate limits, malformed input refused cleanly, and stored files never rendered by a browser. Storage credentials never leave the service.", 0], ["History you can trust", "Checkpoints are immutable and publishing only moves forward, so a buggy agent cannot quietly rewrite the past.", 0], ["Not yet", "End-to-end encryption (storage is encrypted at rest by your cloud) and an independent security audit.", 1]].map(([t, p, no]) => `<li style="display: flex; flex-wrap: wrap; gap: 6px 32px; padding: 22px 0; border-top: 1px solid ${LINE}"><span style="flex: 0 0 240px; ${G}; font-weight: 600; font-size: 20px; letter-spacing: -0.015em; color: ${no ? AMBER_T : INK}">${t}</span><span style="flex: 1 1 320px; font-size: 16px; line-height: 1.6; color: ${BODY}">${p}</span></li>`).join("\n")}
 </ul>`),
@@ -153,7 +153,8 @@ ${h2("faq", "Questions.")}
 <div style="max-width: 900px; border-bottom: 1px solid ${LINE}">
 ${faq("Why not just save JSON to a bucket?", "If you only need the latest copy, a bucket is simpler, and enough. yolog is for what a bucket can't give you: every version kept, branches, several writers without lost updates, retries that never write twice, and history that moves between machines with the same ids.")}
 ${faq("Can agents collaborate in real time?", "Not yet. Agents can share a branch safely, fork their own, and follow a change feed. Live updates pushed to subscribers, and merging branches, are planned.")}
-${faq("Where is my data stored?", "Wherever you run yolog: in your own Cloudflare account (Durable Objects, Artifacts and R2), or on your own machine. You can export everything at any time and write it out as plain Git.")}
+${faq("Where is my data stored?", "Wherever you run yolog: in your own Cloudflare account (Durable Objects, Artifacts and R2), or on your own machine. On the hosted preview it is in ours. You can export everything at any time and write it out as plain Git.")}
+${faq("Is there a hosted version?", "A free preview: your coding agent signs you up with your email, you get one repository, and you read what it saved at app.yolog.dev. It is a preview: no paid plans yet, no independent security review, and no promise about how long it runs as it is. For anything sensitive, or for more than one repository, run yolog yourself.")}
 ${faq("Do I need Cloudflare?", "No. The same build runs standalone on your machine under workerd, offline if you like. Cloudflare is one place to run it, not a requirement.")}
 ${faq("Which agents can use it?", "Any agent that can make HTTP requests. Yo uses it today, GASP agents are checked against the GASP conformance checker, and Claude Code, Codex and other coding agents connect with one line, or through yolog's MCP connector.")}
 ${faq("Is it open source?", "It will be, under the MIT license. yolog is in private development now; the repository opens when the self-hosted release is tested.")}
@@ -174,9 +175,9 @@ const html = `<!doctype html>
 <meta charset="utf-8">
 <title>yolog — Git for your agents</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="The whole agent, versioned: identity, skills, memory, every run, decision and conversation, with append-only history, checkpoints and branches. Hosted free, or run it on Cloudflare or your own machine.">
+<meta name="description" content="Versioned, portable state for AI agents: everything they save, with append-only history, checkpoints and branches. Run it on Cloudflare or your own machine, or try the free hosted preview.">
 <meta property="og:title" content="yolog — Git for your agents">
-<meta property="og:description" content="The whole agent, versioned: identity, skills, memory, runs and decisions. History, checkpoints and branches. Run it anywhere.">
+<meta property="og:description" content="Versioned, portable state for AI agents: history, checkpoints and branches for everything they save. Run it anywhere.">
 <meta property="og:image" content="https://yolog.dev/media/yolog-30s-poster.jpg">
 <meta property="og:url" content="https://yolog.dev/">
 <link rel="canonical" href="https://yolog.dev/">
@@ -219,7 +220,7 @@ html{scroll-behavior:smooth}
 <section id="top" style="max-width: 1240px; margin: 0 auto; padding: clamp(56px, 9vw, 120px) 24px clamp(24px, 4vw, 48px); display: flex; flex-direction: column; gap: 28px">
 <p style="margin: 0; ${M}; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: ${BLUE_L}">Durable infrastructure for AI agents</p>
 <h1 style="margin: 0; ${G}; font-weight: 700; font-size: clamp(48px, 9.2vw, 136px); line-height: 0.94; letter-spacing: -0.05em; max-width: 9em">Git for your <span style="color: ${AMBER}">agents.</span></h1>
-<p style="margin: 0; font-size: clamp(18px, 1.7vw, 23px); line-height: 1.55; color: #B4BDD0; max-width: 40rem">Everything that makes an agent itself, in one versioned repository: who it is, what it can do, what it has learned, and every run, decision and conversation that got it there. Publish from any runtime, fork from any point, take the whole agent with you.</p>
+<p style="margin: 0; font-size: clamp(18px, 1.7vw, 23px); line-height: 1.55; color: #B4BDD0; max-width: 40rem">Everything your agents save, in one versioned repository: conversations, plans, notes and files, with append-only history, checkpoints and branches. Publish from any runtime, fork from any point, take the whole agent with you.</p>
 <div style="display: flex; flex-wrap: wrap; gap: 12px; padding-top: 6px">
 ${btn("#watch", "Watch the 30-second film", true)}
 ${btn("/agents", "Set up with your agent", false)}
@@ -297,7 +298,7 @@ a{color:${BLUE_L}}a:hover{color:#FFFFFF}
 <section style="display: flex; flex-direction: column; gap: 24px">
 <p style="margin: 0; ${M}; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: ${BLUE_L}">Set up with your agent</p>
 <h1 style="margin: 0; ${G}; font-weight: 700; font-size: clamp(40px, 6.4vw, 80px); line-height: 0.98; letter-spacing: -0.045em; max-width: 11em">Let your agent set up <span style="color: ${AMBER}">yolog.</span></h1>
-<p style="margin: 0; font-size: clamp(18px, 1.7vw, 21px); line-height: 1.6; color: #B4BDD0; max-width: 38rem">Paste this line into Claude Code, Codex or any coding agent that can run commands. It asks for your email, you read it the code we send, and the project it is working on keeps its state in yolog. Free, one repository.</p>
+<p style="margin: 0; font-size: clamp(18px, 1.7vw, 21px); line-height: 1.6; color: #B4BDD0; max-width: 38rem">Paste this line into Claude Code, Codex or any coding agent that can run commands. It asks for your email, you read it the code we send, and the project it is working on keeps its state in yolog. Free while it is a preview, one repository.</p>
 <div style="display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; max-width: 860px">
 <code id="prompt" style="flex: 1 1 420px; min-width: 0; display: flex; align-items: center; padding: 18px 20px; border-radius: 12px; background: #131B2E; border: 1px solid #2A3654; ${M}; font-size: 16px; line-height: 1.5; color: #EEF2FA; overflow-wrap: anywhere">${PROMPT}</code>
 <span id="copy-status" role="status" aria-live="polite" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap"></span>
