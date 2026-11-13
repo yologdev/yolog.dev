@@ -210,6 +210,7 @@ html{scroll-behavior:smooth}
 <a href="#faq" style="color: #B4BDD0; text-decoration: none; padding: 12px 0">FAQ</a>
 <a href="/agents" style="color: #B4BDD0; text-decoration: none; padding: 12px 0">Set up with your agent</a>
 <a href="https://docs.yolog.dev" style="color: #B4BDD0; text-decoration: none; padding: 12px 0">Docs</a>
+<a href="https://api.yolog.dev/view" style="color: #B4BDD0; text-decoration: none; padding: 12px 0">Your history</a>
 <a href="https://github.com/yologdev/yolog" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid #3A4666; color: #EEF2FA; text-decoration: none; font-weight: 500">GitHub</a>
 </div>
 </nav>
@@ -287,6 +288,7 @@ a{color:${BLUE_L}}a:hover{color:#FFFFFF}
 <div style="display: flex; flex-wrap: wrap; gap: 4px 26px; font-size: 15px">
 <a href="/" style="color: #B4BDD0; text-decoration: none; padding: 12px 0">Home</a>
 <a href="https://docs.yolog.dev" style="color: #B4BDD0; text-decoration: none; padding: 12px 0">Docs</a>
+<a href="https://api.yolog.dev/view" style="color: #B4BDD0; text-decoration: none; padding: 12px 0">Your history</a>
 </div>
 </nav>
 </header>
