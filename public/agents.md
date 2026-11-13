@@ -139,7 +139,7 @@ Good first uses: append each turn of a conversation to a log (https://docs.yolog
 
 In a few lines: their owner (`free:u_…`), the repository, that the token is in `.yolog/` and Git ignores it, whether you connected yourself through MCP (and that a restart makes the tools available), and the date the token expires. To renew it, or on a new machine, repeat steps 2 and 3 with the same email: the same owner comes back with its repository, and a new token. After a renewal, reconnect the MCP server (in Claude Code, `/mcp`, or a restart).
 
-Also tell them where to see what you save: https://api.yolog.dev/view, signing in with the token in `.yolog/token` (on a Mac, `pbcopy < .yolog/token` copies it). It shows the timeline of checkpoints, what changed in each, the files, and the logs as conversations. It only reads. Do not put the token in a link or a message unless they ask: they can paste it themselves.
+Also tell them where to see what you save: https://app.yolog.dev, signing in with the token in `.yolog/token` (on a Mac, `pbcopy < .yolog/token` copies it). It shows the timeline of checkpoints, what changed in each, the files, and the logs as conversations. It only reads. Do not put the token in a link or a message unless they ask: they can paste it themselves.
 
 ## More than the free tier
 
