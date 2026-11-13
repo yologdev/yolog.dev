@@ -246,6 +246,7 @@ ${rows.join("\n")}
 <a href="https://github.com/yologdev/yolog" style="color: ${BODY}; padding: 12px 0">GitHub</a>
 <a href="https://github.com/yologdev/gasp" style="color: ${BODY}; padding: 12px 0">GASP</a>
 <a href="https://docs.yolog.dev" style="color: ${BODY}; padding: 12px 0">Docs</a>
+<a href="/privacy" style="color: ${BODY}; padding: 12px 0">Privacy</a>
 <span style="padding: 12px 0">MIT license</span>
 </div>
 </div>
@@ -321,7 +322,7 @@ ${step("06", "Then open it yourself", 'Sign in at <a href="https://app.yolog.dev
 <div style="display: flex; flex-direction: column; gap: 20px">
 <h2 style="margin: 0; ${G}; font-weight: 700; font-size: 28px; letter-spacing: -0.03em">What stays private</h2>
 ${dcard("Tokens never reach the chat", "The agent writes the token straight to a file only you can read. It never prints it, and never puts it on a command line.")}
-${dcard("Your email is not stored", "We use it to send the code, and keep only a keyed hash of it, so the same address finds the same account again.")}
+${dcard("Your email is not stored", "We use it to send the code, and keep only a keyed hash of it, so the same address finds the same account again. <a href=\"/privacy\">What we keep</a>.")}
 ${dcard("Your account only", "The token reaches your own repositories and nothing else. Lose it, and the same email gets you a new one.")}
 </div>
 </section>
@@ -350,12 +351,96 @@ document.getElementById("copy").addEventListener("click", async (e) => {
 </html>
 `;
 
+// --- /privacy: what the hosted preview keeps, in plain words. Every claim here
+// is a fact about api.yolog.dev's code or configuration: change them together.
+const CONTACT = "privacy@yolog.dev";
+const PRIVACY_DATE = "13 November 2026";
+const psec = (title, body) => `<section style="display: flex; flex-direction: column; gap: 14px"><h2 style="margin: 0; ${G}; font-weight: 700; font-size: 26px; letter-spacing: -0.03em; color: #FFFFFF">${title}</h2>${body}</section>`;
+const pp = (t) => `<p style="margin: 0; font-size: 17px; line-height: 1.65; color: #B4BDD0">${t}</p>`;
+const pl = (items) => `<ul style="margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; font-size: 17px; line-height: 1.6; color: #B4BDD0">${items.map((i) => `<li>${i}</li>`).join("")}</ul>`;
+const pb = (t) => `<strong style="color: #EEF2FA; font-weight: 600">${t}</strong>`;
+const privacyHtml = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Privacy — yolog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="What the hosted yolog preview keeps about you, for how long, who else handles it, and how to delete your account.">
+<meta property="og:title" content="Privacy — yolog">
+<meta property="og:description" content="What the hosted yolog preview keeps, for how long, and how to delete it.">
+<meta property="og:url" content="https://yolog.dev/privacy">
+<link rel="canonical" href="https://yolog.dev/privacy">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script src="/analytics.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:${INK}}
+a{color:${BLUE_L}}a:hover{color:#FFFFFF}
+</style>
+</head>
+<body>
+<div style="font-family: Inter, system-ui, sans-serif; color: #EEF2FA; background: ${INK}; min-height: 100vh">
+<header>
+<nav aria-label="Main" style="max-width: 1040px; margin: 0 auto; padding: 18px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px">
+<a href="/" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #EEF2FA">${mark("#EEF2FA")}<span style="${G}; font-weight: 700; font-size: 24px; letter-spacing: -0.03em">yolog</span></a>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 26px; font-size: 15px">
+<a href="/" style="color: #B4BDD0; text-decoration: none; padding: 12px 0">Home</a>
+<a href="https://docs.yolog.dev" style="color: #B4BDD0; text-decoration: none; padding: 12px 0">Docs</a>
+<a href="https://app.yolog.dev" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 8px; background: #2647E8; color: #FFFFFF; text-decoration: none; font-weight: 600">Sign in</a>
+</div>
+</nav>
+</header>
+<main style="max-width: 760px; margin: 0 auto; padding: clamp(40px, 7vw, 96px) 24px clamp(64px, 8vw, 112px); display: flex; flex-direction: column; gap: clamp(36px, 5vw, 52px)">
+<section style="display: flex; flex-direction: column; gap: 20px">
+<p style="margin: 0; ${M}; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: ${BLUE_L}">Privacy · updated ${PRIVACY_DATE}</p>
+<h1 style="margin: 0; ${G}; font-weight: 700; font-size: clamp(38px, 6vw, 68px); line-height: 1; letter-spacing: -0.045em">What we keep, and what we <span style="color: ${AMBER}">don't.</span></h1>
+${pp(`This page covers the hosted yolog: api.yolog.dev, <a href="https://app.yolog.dev">app.yolog.dev</a> and this site. It is a free preview. A yolog you run yourself sends us nothing, and none of this applies to it.`)}
+</section>
+${psec("The short version", pl([
+  `We keep ${pb("what your agents save")}, so you and they can read it back.`,
+  `We ${pb("do not keep your email address")}. We keep a keyed hash of it, which finds your account again but cannot be turned back into the address.`,
+  `We do not sell anything, show ads, or read your repositories to train models.`,
+  `It is a preview: there are ${pb("no backups yet")} and no independent security review. Keep anything sensitive on a yolog you run.`,
+]))}
+${psec("What we keep", pl([
+  `${pb("Your repositories.")} Every file, conversation log, checkpoint and branch your agents publish, until you delete them.`,
+  `${pb("A keyed hash of your mailbox,")} with the account it belongs to. It is how the same email finds the same account.`,
+  `${pb("Sign-in and sign-up codes,")} as hashes, for the 10 minutes they work, and the times codes were sent to a mailbox, to limit how many go out.`,
+  `${pb("Request logs.")} For each change, and each request that fails: the time, the kind of request, the result, your account id, the repository id and a request id. No file contents, no email address, no IP address. They are kept for about 7 days.`,
+]))}
+${psec("What we do not keep", pl([
+  `${pb("Your email address.")} It is used to send the code and then dropped.`,
+  `${pb("Your tokens.")} They are signed, not stored. A token in your browser stays in your browser.`,
+  `${pb("Your IP address.")} It is used for about a minute to limit sign-up and sign-in attempts from one network, and is not written to our logs.`,
+  `${pb("Cookies or trackers on app.yolog.dev.")} The viewer loads nothing from other sites.`,
+]))}
+${psec("Who else handles it", pl([
+  `${pb("Cloudflare")} runs the service and stores the repositories. It also delivers the code emails, so it sees your address to deliver them, and as the network it sees your IP address.`,
+  `${pb("PostHog")} counts page views and clicks on yolog.dev and docs.yolog.dev, in the United States. It keeps an anonymous identifier in your browser. It is not on app.yolog.dev or api.yolog.dev.`,
+]))}
+${psec("How long", pl([
+  `${pb("Repositories:")} until they are deleted. A deleted repository can be restored for 3 days, then its contents are removed. Cloudflare's own storage recovery can hold removed data for up to 30 days more.`,
+  `${pb("Request logs:")} about 7 days.`,
+  `${pb("Backups:")} none are taken yet. When they start, they will be encrypted copies kept for 30 days, and this page will say so.`,
+]))}
+${psec("Delete your account", `${pp(`Write to <a href="mailto:${CONTACT}">${CONTACT}</a> from the address you signed up with. We delete your repositories and the hash of your mailbox, and tell you when it is done. The same address works for a copy of your data, or any question about this page.`)}${pp(`You can also read everything we hold for you yourself: sign in at <a href="https://app.yolog.dev">app.yolog.dev</a>, or use the <a href="https://docs.yolog.dev/reference/http-api/">API</a> with your token.`)}`)}
+${psec("If you use yolog through another app", pp(`Some apps, such as Yo, keep their users' agent state in yolog. There, the app decides what is saved and is who you ask about it. We hold that data for the app, under the same rules as above, and never see who you are: the app gives us only an account id.`))}
+${psec("Changes", pp(`When this page changes, the date at the top changes with it. What the preview still lacks is listed in the <a href="https://docs.yolog.dev/trust/roadmap/">roadmap</a>.`))}
+</main>
+</div>
+</body>
+</html>
+`;
+
 const out = new URL("./dist/", import.meta.url);
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 cpSync(new URL("./public/", import.meta.url), out, { recursive: true });
 writeFileSync(new URL("index.html", out), html);
 writeFileSync(new URL("agents.html", out), agentsHtml); // served at /agents
+writeFileSync(new URL("privacy.html", out), privacyHtml); // served at /privacy
 writeFileSync(new URL("404.html", out), `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Not found — yolog</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"></head>
