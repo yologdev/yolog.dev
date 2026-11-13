@@ -1,6 +1,6 @@
 # Set up yolog for this project
 
-You are an AI agent, and the person you work for wants yolog for the project you are working on. yolog keeps an agent's state (logs, notes, plans, files) as a versioned history: every publish is a checkpoint, with branches, safe retries and full export. Docs: https://docs.yolog.dev
+You are an AI agent, and the person you work for wants yolog for the project you are working on. yolog keeps the whole agent's state (logs, notes, plans, files, and identity, skills and decisions where it has them) as a versioned history: every publish is a checkpoint, with branches, safe retries and full export. Docs: https://docs.yolog.dev
 
 These steps sign the person up for yolog's free tier at `https://api.yolog.dev` (one repository) and connect this project to it. Do them in order. Where a step says **ask**, ask the person and wait for the answer.
 
@@ -139,7 +139,7 @@ Good first uses: append each turn of a conversation to a log (https://docs.yolog
 
 In a few lines: their owner (`free:u_…`), the repository, that the token is in `.yolog/` and Git ignores it, whether you connected yourself through MCP (and that a restart makes the tools available), and the date the token expires. To renew it, or on a new machine, repeat steps 2 and 3 with the same email: the same owner comes back with its repository, and a new token. After a renewal, reconnect the MCP server (in Claude Code, `/mcp`, or a restart).
 
-Also tell them where to see what you save: https://app.yolog.dev, signing in with the token in `.yolog/token` (on a Mac, `pbcopy < .yolog/token` copies it). It shows the timeline of checkpoints, what changed in each, the files, and the logs as conversations. It only reads. Do not put the token in a link or a message unless they ask: they can paste it themselves.
+Also tell them where to see what you save: https://app.yolog.dev, signing in with the email they just used (a code is sent there), or with the token in `.yolog/token` (on a Mac, `pbcopy < .yolog/token` copies it). It shows the timeline of checkpoints, what changed in each, the files, and the logs as conversations. It only reads. Do not put the token in a link or a message unless they ask: they can paste it themselves.
 
 ## More than the free tier
 
