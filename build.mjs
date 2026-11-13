@@ -54,12 +54,11 @@ ${h2("why", "An agent should outlive the run.")}
 ${lead("An agent is more than its model: its identity and rules, its skills, what it has learned, and the record of what it did and why. Today that lives in a process, a vendor's session store or a pile of notes. The process crashes, the service redeploys, the work moves to a new machine, and the agent is gone. yolog keeps every version of all of it, as a history you can trust, branch and carry between machines.")}
 <div style="background: ${INK}; border-radius: 16px; padding: clamp(22px, 3vw, 36px); display: flex; flex-direction: column; max-width: 860px">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; ${M}; font-size: 14px; color: #9AA6BF; padding-bottom: 16px"><span>my-agent / main</span><span style="color: ${BLUE_L}">checkpoint a8e2…19</span></div>
-${fileRow("identity/IDENTITY.md", "who it is, and its hard rules")}
-${fileRow("skills/", "what it can do, each skill versioned")}
-${fileRow("memory/facts.jsonl", "what it has learned")}
-${fileRow("state/events.jsonl", "every goal, run, eval and decision, in order")}
 ${fileRow("logs/session.jsonl", "every message and tool call")}
-<p style="margin: 0; padding-top: 16px; border-top: 1px solid #1E2942; font-size: 15px; color: #9AA6BF">The layout of a <a href="https://gasp.yolog.dev" style="color: ${BLUE_L}">GASP</a> agent. yolog stores whatever files and logs your agent publishes, in any layout.</p>
+${fileRow("plan.md", "what it is working on")}
+${fileRow("memory/notes.md", "what it has learned")}
+${fileRow("skills/", "what it can do")}
+<p style="margin: 0; padding-top: 16px; border-top: 1px solid #1E2942; font-size: 15px; color: #9AA6BF">Typical examples: yolog stores whatever files and logs your agent publishes, in any layout. An agent laid out the <a href="https://gasp.yolog.dev" style="color: ${BLUE_L}">GASP</a> way adds who it is and a log of every goal, run and decision, and the viewer shows them.</p>
 </div>`),
 row("#2647E8", "a8e2…19 · watch", `
 ${h2("watch-title", "See it in 30 seconds.")}
