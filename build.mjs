@@ -425,10 +425,10 @@ ${psec("Who else handles it", pl([
 ${psec("How long", pl([
   `${pb("Repositories:")} until they are deleted. A deleted repository can be restored for 3 days, then its contents are removed. Cloudflare's own storage recovery can hold removed data for up to 30 days more.`,
   `${pb("Request logs:")} about 7 days.`,
-  `${pb("The activity log:")} 180 days, and at most the newest 10,000 entries per account. After an account is deleted, its entries stay until they are that old; they hold ids, not contents or addresses.`,
+  `${pb("The activity log:")} 180 days, and at most the newest 10,000 entries per account. It is deleted with the account.`,
   `${pb("Backups:")} none are taken yet. When they start, they will be encrypted copies kept for 30 days, and this page will say so.`,
 ]))}
-${psec("Delete your account", `${pp(`Write to <a href="mailto:${CONTACT}">${CONTACT}</a> from the address you signed up with. We delete your repositories and the hash of your mailbox, and tell you when it is done. The same address works for a copy of your data, or any question about this page.`)}${pp(`You can also read everything we hold for you yourself: sign in at <a href="https://app.yolog.dev">app.yolog.dev</a>, or use the <a href="https://docs.yolog.dev/reference/http-api/">API</a> with your token.`)}`)}
+${psec("Delete your account", `${pp(`Write to <a href="mailto:${CONTACT}">${CONTACT}</a> from the address you signed up with. We delete your repositories, your activity log and the hash of your mailbox, and tell you when it is done. The same address works for a copy of your data, or any question about this page.`)}${pp(`You can also read everything we hold for you yourself: sign in at <a href="https://app.yolog.dev">app.yolog.dev</a>, or use the <a href="https://docs.yolog.dev/reference/http-api/">API</a> with your token.`)}`)}
 ${psec("If you use yolog through another app", pp(`Some apps, such as Yo, keep their users' agent state in yolog. There, the app decides what is saved and is who you ask about it. We hold that data for the app, under the same rules as above, and never see who you are: the app gives us only an account id.`))}
 ${psec("Changes", pp(`When this page changes, the date at the top changes with it. What the preview still lacks is listed in the <a href="https://docs.yolog.dev/trust/roadmap/">roadmap</a>.`))}
 </main>
