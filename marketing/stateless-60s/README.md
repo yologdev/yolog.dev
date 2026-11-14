@@ -18,7 +18,17 @@ npm run render    # renders to renders/ (not committed)
 
 ## Sound
 
-There is no voice: every point is on screen as text, because most feeds autoplay muted. The music bed and cues in `assets/audio/` are the explainer's (see [../explainer/README.md](../explainer/README.md) for how they were made and their terms).
+A voice-over reads one line per scene (`assets/audio/vo-s1.mp3` to `vo-s7.mp3`), generated on [fal.ai](https://fal.ai) with ElevenLabs Multilingual v2 (`fal-ai/elevenlabs/tts/multilingual-v2`, voice Brian) and levelled to -16 LUFS. Every point is also on screen as text, because most feeds autoplay muted. The music bed (lowered under the voice) and the cues are the explainer's; see [../explainer/README.md](../explainer/README.md) for how they were made. Check the providers' terms before commercial use.
+
+| Scene | Line |
+|---|---|
+| 1 | Your agent's computer is temporary. One timeout, and its work is gone. |
+| 2 | Its work shouldn't be. This is yolog: Git for your agents. |
+| 3 | One: stateless agents. Each run loads where things stand, does one step, and saves. The run goes away. What it saved does not. |
+| 4 | Two: run anywhere. Start on your laptop, continue in a cloud function, finish in a nightly job. Same agent, same memory. |
+| 5 | Three: skip the backend. No database, no bucket, no schema. Just resume, and save. |
+| 6 | Four: never lose a run. If the process dies, a new one picks up from the last saved step. |
+| 7 | yolog. Git for your agents. Free to try, at yolog dot dev. |
 
 Normalize the final file to -14 LUFS:
 
