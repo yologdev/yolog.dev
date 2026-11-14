@@ -354,7 +354,7 @@ document.getElementById("copy").addEventListener("click", async (e) => {
 // --- /privacy: what the hosted preview keeps, in plain words. Every claim here
 // is a fact about api.yolog.dev's code or configuration: change them together.
 const CONTACT = "privacy@yolog.dev";
-const PRIVACY_DATE = "13 November 2026";
+const PRIVACY_DATE = "14 November 2026";
 const psec = (title, body) => `<section style="display: flex; flex-direction: column; gap: 14px"><h2 style="margin: 0; ${G}; font-weight: 700; font-size: 26px; letter-spacing: -0.03em; color: #FFFFFF">${title}</h2>${body}</section>`;
 const pp = (t) => `<p style="margin: 0; font-size: 17px; line-height: 1.65; color: #B4BDD0">${t}</p>`;
 const pl = (items) => `<ul style="margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; font-size: 17px; line-height: 1.6; color: #B4BDD0">${items.map((i) => `<li>${i}</li>`).join("")}</ul>`;
@@ -409,10 +409,12 @@ ${psec("What we keep", pl([
   `${pb("A keyed hash of your mailbox,")} with the account it belongs to. It is how the same email finds the same account.`,
   `${pb("Sign-in and sign-up codes,")} as hashes, for the 10 minutes they work, and the times codes were sent to a mailbox, to limit how many go out.`,
   `${pb("Request logs.")} For each change, and each request that fails: the time, the kind of request, the result, your account id, the repository id and a request id. No file contents, no email address, no IP address. They are kept for about 7 days.`,
+  `${pb("An activity log for your account.")} Each sign-in, each token and share link made or revoked, and each repository created, deleted or restored: the time, the id of the token that did it, and what it covered (the repository, and the paths of a share link). No file contents, and no record of who read what. You can read it under Activity in the viewer.`,
+  `${pb("The ids of tokens you revoked,")} until those tokens would have expired, so that they stay refused.`,
 ]))}
 ${psec("What we do not keep", pl([
   `${pb("Your email address.")} It is used to send the code and then dropped.`,
-  `${pb("Your tokens.")} They are signed, not stored. A token in your browser stays in your browser.`,
+  `${pb("Your tokens.")} They are signed, not stored: we keep only a token's id, in the activity log and when you revoke it. A token in your browser stays in your browser. A share link is a token too, so the link itself is not stored either.`,
   `${pb("Your IP address.")} It is used for about a minute to limit sign-up and sign-in attempts from one network, and is not written to our logs.`,
   `${pb("Cookies or trackers on app.yolog.dev.")} The viewer loads nothing from other sites.`,
 ]))}
@@ -423,6 +425,7 @@ ${psec("Who else handles it", pl([
 ${psec("How long", pl([
   `${pb("Repositories:")} until they are deleted. A deleted repository can be restored for 3 days, then its contents are removed. Cloudflare's own storage recovery can hold removed data for up to 30 days more.`,
   `${pb("Request logs:")} about 7 days.`,
+  `${pb("The activity log:")} 180 days, and at most the newest 10,000 entries per account. After an account is deleted, its entries stay until they are that old; they hold ids, not contents or addresses.`,
   `${pb("Backups:")} none are taken yet. When they start, they will be encrypted copies kept for 30 days, and this page will say so.`,
 ]))}
 ${psec("Delete your account", `${pp(`Write to <a href="mailto:${CONTACT}">${CONTACT}</a> from the address you signed up with. We delete your repositories and the hash of your mailbox, and tell you when it is done. The same address works for a copy of your data, or any question about this page.`)}${pp(`You can also read everything we hold for you yourself: sign in at <a href="https://app.yolog.dev">app.yolog.dev</a>, or use the <a href="https://docs.yolog.dev/reference/http-api/">API</a> with your token.`)}`)}
