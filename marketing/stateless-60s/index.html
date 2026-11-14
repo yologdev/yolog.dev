@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/SpaceGrotesk-latin.woff2") format("woff2"); font-weight: 300 700; font-style: normal; }
+      :root {
+        --ground: #0b1120;
+        --ink: #eef2fa;
+        --muted: #9aa6bf;
+        --accent: #4f74ff;
+        --accent-text: #8ba2ff;
+        --branch: #f2b35b;
+        --saved: #7fe0b0;
+        --lost: #ff7a7a;
+        --line: #26304a;
+        --card: #121a2e;
+        --display: "Space Grotesk", sans-serif;
+        --mono: "JetBrains Mono", monospace;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--ground); }
+      #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--ground); font-family: var(--display); color: var(--ink); }
+
+      /* Persistent background: a faint grid and a breathing accent glow. */
+      .bg-grid { position: absolute; inset: -80px; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 80px 80px; opacity: 0.35; z-index: 0; }
+      .bg-glow { position: absolute; width: 1400px; height: 1400px; left: 260px; top: -160px; border-radius: 50%; background: radial-gradient(circle, rgba(79, 116, 255, 0.22) 0%, rgba(79, 116, 255, 0) 62%); z-index: 0; }
+
+      .scene { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; z-index: 1; }
+      .scene:not(#s1) { opacity: 0; }
+      .scene-content { width: 100%; height: 100%; padding: 120px 160px; display: flex; flex-direction: column; justify-content: center; gap: 48px; box-sizing: border-box; }
+
+      .eyebrow { font-family: var(--mono); font-size: 28px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-text); }
+      .h1 { font-size: 112px; font-weight: 700; line-height: 1.0; letter-spacing: -0.04em; }
+      .h2 { font-size: 84px; font-weight: 700; line-height: 1.04; letter-spacing: -0.035em; }
+      .sub { font-size: 40px; font-weight: 400; line-height: 1.35; color: var(--muted); letter-spacing: -0.01em; }
+      .mono { font-family: var(--mono); }
+      .row { display: flex; align-items: center; gap: 64px; }
+
+      /* S1 — hook */
+      .card { width: 820px; flex: none; background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 36px 40px; display: flex; flex-direction: column; gap: 18px; position: relative; }
+      .card-top { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 28px; color: var(--muted); }
+      .log { font-family: var(--mono); font-size: 30px; color: var(--ink); display: flex; gap: 22px; }
+      .log .t { color: var(--accent-text); flex: none; }
+      .lost { position: absolute; inset: 0; border-radius: 20px; background: rgba(11, 17, 32, 0.86); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 40px; font-weight: 500; color: var(--lost); letter-spacing: 0.06em; border: 2px solid var(--lost); }
+      .chips { display: flex; gap: 16px; flex-wrap: wrap; }
+      .chip { font-family: var(--mono); font-size: 30px; padding: 10px 22px; border-radius: 999px; border: 2px solid var(--lost); color: var(--lost); }
+
+      /* S2 — reveal */
+      .center { align-items: center; text-align: center; }
+      .brand { display: flex; align-items: center; gap: 40px; }
+      .wordmark { font-size: 200px; font-weight: 700; letter-spacing: -0.05em; line-height: 1; }
+
+      /* S3 — stateless agents */
+      .diagram { position: relative; width: 1600px; height: 380px; }
+      .diagram svg { position: absolute; inset: 0; }
+      .run { position: absolute; top: 0; width: 400px; height: 132px; border-radius: 16px; border: 2px dashed var(--muted); background: var(--card); display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 0 30px; }
+      .run-name { font-family: var(--mono); font-size: 28px; color: var(--muted); white-space: nowrap; }
+      .run-steps { font-family: var(--mono); font-size: 28px; color: var(--ink); white-space: nowrap; }
+      .tag { position: absolute; font-family: var(--mono); font-size: 28px; padding: 8px 18px; border-radius: 10px; white-space: nowrap; }
+
+      /* S4 — run anywhere */
+      .ports { display: flex; align-items: stretch; gap: 40px; }
+      .panel { width: 506px; flex: none; background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 34px 36px; display: flex; flex-direction: column; gap: 18px; }
+      .panel-head { display: flex; align-items: center; gap: 18px; font-size: 38px; font-weight: 700; white-space: nowrap; }
+      .panel-row { font-family: var(--mono); font-size: 28px; display: flex; gap: 14px; white-space: nowrap; }
+      .panel-row .k { color: var(--muted); width: 120px; flex: none; }
+      .panel-row .v { color: var(--accent-text); }
+      .panel-row .v.new { color: var(--saved); }
+
+      /* S5 — skip the backend */
+      .xs { display: flex; flex-direction: column; gap: 26px; flex: none; }
+      .x { display: flex; align-items: center; gap: 22px; font-size: 44px; font-weight: 700; letter-spacing: -0.02em; color: var(--muted); }
+      .x span { text-decoration: line-through; text-decoration-color: var(--lost); text-decoration-thickness: 3px; }
+      .x svg { flex: none; }
+      .code { flex: none; width: 900px; background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 40px 44px; display: flex; flex-direction: column; gap: 22px; }
+      .code-line { font-family: var(--mono); font-size: 32px; white-space: nowrap; color: var(--ink); }
+      .code-line .c { color: var(--muted); }
+      .code-line .f { color: var(--accent-text); }
+
+      /* S6 — never lose a run */
+      .timeline { position: relative; height: 280px; width: 1600px; }
+      .tl-line { position: absolute; left: 0; right: 0; top: 69px; height: 6px; background: var(--accent); border-radius: 3px; transform-origin: left center; }
+      .dots { position: absolute; left: 60px; right: 60px; top: 0; height: 160px; display: flex; justify-content: space-between; }
+      .dot { width: 220px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+      .dot-turn { font-size: 30px; color: var(--muted); height: 34px; line-height: 34px; }
+      .dot-mark { position: relative; z-index: 1; width: 40px; height: 40px; border-radius: 50%; background: var(--ground); border: 6px solid var(--accent); }
+      .dot-mark.fresh { border-color: var(--saved); }
+      .dot-id { font-family: var(--mono); font-size: 28px; color: var(--accent-text); }
+      .ring { position: absolute; width: 84px; height: 84px; border-radius: 50%; border: 4px solid var(--saved); }
+      .note { position: absolute; font-family: var(--mono); font-size: 30px; white-space: nowrap; }
+
+      /* S7 — CTA */
+      .url { font-family: var(--mono); font-size: 44px; color: var(--ink); padding: 18px 34px; border: 2px solid var(--accent); border-radius: 16px; }
+      .facts { font-family: var(--mono); font-size: 30px; color: var(--muted); }
+      #fade { position: absolute; inset: 0; background: var(--ground); opacity: 0; z-index: 5; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-width="1920" data-height="1080" data-start="0" data-duration="60">
+      <div class="bg-grid" id="bg-grid"></div>
+      <div class="bg-glow" id="bg-glow"></div>
+
+      <!-- S1 — hook: the agent's computer goes away, and its work with it -->
+      <div id="s1" class="scene">
+        <div class="scene-content">
+          <div class="row">
+            <div class="card" id="s1-card">
+              <div class="card-top"><span>sandbox · task 7</span><span>running</span></div>
+              <div class="log s1-log"><span class="t">step 41</span><span>plan the migration</span></div>
+              <div class="log s1-log"><span class="t">step 42</span><span>drafted 3 steps</span></div>
+              <div class="log s1-log"><span class="t">step 43</span><span>wrote notes.md</span></div>
+              <div class="log s1-log"><span class="t">step 44</span><span>running step 1…</span></div>
+              <div class="lost" id="s1-lost" data-layout-allow-overlap>SANDBOX DELETED</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 40px">
+              <div class="h1" id="s1-title">Your agent's computer is temporary.</div>
+              <div class="chips">
+                <span class="chip s1-chip">timeout</span>
+                <span class="chip s1-chip">redeploy</span>
+                <span class="chip s1-chip">laptop closed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S2 — reveal -->
+      <div id="s2" class="scene">
+        <div class="scene-content center" style="gap: 44px">
+          <div class="eyebrow" id="s2-eyebrow">Git for your agents</div>
+          <div class="brand" id="s2-brand">
+            <svg width="190" height="190" viewBox="0 0 28 28" fill="none" aria-hidden="true" id="s2-mark">
+              <circle cx="6" cy="14" r="3.5" stroke="#4F74FF" stroke-width="2" />
+              <circle cx="22" cy="7" r="3.5" stroke="#4F74FF" stroke-width="2" />
+              <circle cx="22" cy="21" r="3.5" stroke="#F2B35B" stroke-width="2" />
+              <path d="M9.5 14h4c2.5 0 3-7 5-7M13.5 14c2.5 0 3 7 5 7" stroke="#EEF2FA" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            <div class="wordmark" id="s2-word">yolog</div>
+          </div>
+          <div class="sub" id="s2-sub" style="font-size: 56px; color: var(--ink)">Its work shouldn't be.</div>
+        </div>
+      </div>
+
+      <!-- S3 — stateless agents -->
+      <div id="s3" class="scene">
+        <div class="scene-content" style="gap: 44px">
+          <div style="display: flex; flex-direction: column; gap: 22px">
+            <div class="eyebrow" id="s3-eyebrow">01</div>
+            <div class="h2" id="s3-title">Stateless agents.</div>
+          </div>
+          <div class="diagram">
+            <svg width="1600" height="380" viewBox="0 0 1600 380" aria-hidden="true">
+              <path id="s3-line" d="M40 270 H1560" stroke="#4F74FF" stroke-width="6" stroke-linecap="round" fill="none" pathLength="1" style="stroke-dasharray: 1; stroke-dashoffset: 0" />
+              <path class="s3-wire" d="M260 132 V252" stroke="#9AA6BF" stroke-width="4" stroke-linecap="round" fill="none" pathLength="1" style="stroke-dasharray: 1; stroke-dashoffset: 0" />
+              <path class="s3-wire" d="M800 132 V252" stroke="#9AA6BF" stroke-width="4" stroke-linecap="round" fill="none" pathLength="1" style="stroke-dasharray: 1; stroke-dashoffset: 0" />
+              <path class="s3-wire" d="M1340 132 V252" stroke="#9AA6BF" stroke-width="4" stroke-linecap="round" fill="none" pathLength="1" style="stroke-dasharray: 1; stroke-dashoffset: 0" />
+              <circle class="s3-node" cx="260" cy="270" r="18" fill="#0B1120" stroke="#7FE0B0" stroke-width="6" />
+              <circle class="s3-node" cx="800" cy="270" r="18" fill="#0B1120" stroke="#7FE0B0" stroke-width="6" />
+              <circle class="s3-node" cx="1340" cy="270" r="18" fill="#0B1120" stroke="#7FE0B0" stroke-width="6" />
+            </svg>
+            <div class="run s3-run" id="s3-run1" style="left: 60px"><div class="run-name">run 1</div><div class="run-steps">resume → step → save</div></div>
+            <div class="run s3-run" id="s3-run2" style="left: 600px"><div class="run-name">run 2 · new process</div><div class="run-steps">resume → step → save</div></div>
+            <div class="run s3-run" id="s3-run3" style="left: 1140px"><div class="run-name">run 3 · new machine</div><div class="run-steps">resume → step → save</div></div>
+            <div class="tag" id="s3-tag" style="left: 40px; top: 316px; color: var(--accent-text); border: 2px solid var(--accent)">the agent's repository · always there</div>
+          </div>
+          <div class="sub" id="s3-sub">Each run starts where the last one stopped.</div>
+        </div>
+      </div>
+
+      <!-- S4 — run anywhere -->
+      <div id="s4" class="scene">
+        <div class="scene-content" style="gap: 48px">
+          <div style="display: flex; flex-direction: column; gap: 22px">
+            <div class="eyebrow" id="s4-eyebrow">02</div>
+            <div class="h2" id="s4-title">Run anywhere.</div>
+          </div>
+          <div class="ports">
+            <div class="panel s4-panel">
+              <div class="panel-head">
+                <svg width="56" height="40" viewBox="0 0 56 40" fill="none" aria-hidden="true"><rect x="8" y="4" width="40" height="26" rx="3" stroke="#8BA2FF" stroke-width="4" /><path d="M2 36h52" stroke="#8BA2FF" stroke-width="4" stroke-linecap="round" /></svg>
+                Your laptop
+              </div>
+              <div class="panel-row"><span class="k">resumed</span><span class="v">9c41…e0</span></div>
+              <div class="panel-row s4-saved"><span class="k">saved</span><span class="v new">51d0…7a</span></div>
+            </div>
+            <div class="panel s4-panel">
+              <div class="panel-head">
+                <svg width="52" height="40" viewBox="0 0 52 40" fill="none" aria-hidden="true"><path d="M14 34h26a10 10 0 0 0 0-20 14 14 0 0 0-27-2A11 11 0 0 0 14 34z" stroke="#8BA2FF" stroke-width="4" stroke-linejoin="round" /></svg>
+                A cloud function
+              </div>
+              <div class="panel-row"><span class="k">resumed</span><span class="v">51d0…7a</span></div>
+              <div class="panel-row s4-saved"><span class="k">saved</span><span class="v new">e47b…02</span></div>
+            </div>
+            <div class="panel s4-panel">
+              <div class="panel-head">
+                <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true"><circle cx="22" cy="22" r="18" stroke="#8BA2FF" stroke-width="4" /><path d="M22 11v11l8 6" stroke="#8BA2FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                A nightly job
+              </div>
+              <div class="panel-row"><span class="k">resumed</span><span class="v">e47b…02</span></div>
+              <div class="panel-row s4-saved"><span class="k">saved</span><span class="v new">03bf…c4</span></div>
+            </div>
+          </div>
+          <div class="sub" id="s4-sub">Same agent. Same memory. Any machine.</div>
+        </div>
+      </div>
+
+      <!-- S5 — skip the backend -->
+      <div id="s5" class="scene">
+        <div class="scene-content" style="gap: 48px">
+          <div style="display: flex; flex-direction: column; gap: 22px">
+            <div class="eyebrow" id="s5-eyebrow">03</div>
+            <div class="h2" id="s5-title">Skip the backend.</div>
+          </div>
+          <div class="row" style="gap: 110px">
+            <div class="xs">
+              <div class="x s5-x"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><path d="M8 8 36 36M36 8 8 36" stroke="#FF7A7A" stroke-width="7" stroke-linecap="round" /></svg><span>A database</span></div>
+              <div class="x s5-x"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><path d="M8 8 36 36M36 8 8 36" stroke="#FF7A7A" stroke-width="7" stroke-linecap="round" /></svg><span>A storage bucket</span></div>
+              <div class="x s5-x"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><path d="M8 8 36 36M36 8 8 36" stroke="#FF7A7A" stroke-width="7" stroke-linecap="round" /></svg><span>A schema</span></div>
+              <div class="x s5-x"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><path d="M8 8 36 36M36 8 8 36" stroke="#FF7A7A" stroke-width="7" stroke-linecap="round" /></svg><span>Migrations</span></div>
+            </div>
+            <div class="code" id="s5-code">
+              <div class="code-line s5-line"><span class="c">// all the storage code an agent needs</span></div>
+              <div class="code-line s5-line">const state = await repo.<span class="f">resume</span>()</div>
+              <div class="code-line s5-line">await repo.<span class="f">save</span>({ message, files })</div>
+            </div>
+          </div>
+          <div class="sub" id="s5-sub">Your agent needs a model and a memory. We are the memory.</div>
+        </div>
+      </div>
+
+      <!-- S6 — never lose a run -->
+      <div id="s6" class="scene">
+        <div class="scene-content" style="gap: 56px">
+          <div style="display: flex; flex-direction: column; gap: 22px">
+            <div class="eyebrow" id="s6-eyebrow">04</div>
+            <div class="h2" id="s6-title">Never lose a run.</div>
+          </div>
+          <div class="timeline">
+            <div class="tl-line" id="s6-line"></div>
+            <div class="dots">
+              <div class="dot s6-dot"><div class="dot-turn">step 1</div><div class="dot-mark"></div><div class="dot-id">03bf…c4</div></div>
+              <div class="dot s6-dot"><div class="dot-turn">step 2</div><div class="dot-mark"></div><div class="dot-id">a8e2…19</div></div>
+              <div class="dot s6-dot"><div class="dot-turn">step 3</div><div class="dot-mark"></div><div class="dot-id">51d0…7a</div></div>
+              <div class="dot s6-dot"><div class="dot-turn">step 4</div><div class="dot-mark"></div><div class="dot-id">e47b…02</div></div>
+              <div class="dot" id="s6-next"><div class="dot-turn">step 5</div><div class="dot-mark fresh"></div><div class="dot-id" style="color: var(--saved)">9c41…e0</div></div>
+            </div>
+            <!-- Dot centres: 170, 485, 800, 1115, 1430 (five 220px dots across 60..1540). -->
+            <div class="ring" id="s6-ring" style="left: 1073px; top: 30px"></div>
+            <div class="note" id="s6-died" style="left: 60px; top: 180px; color: var(--lost)">✕ the process died after step 4</div>
+            <div class="note" id="s6-back" style="left: 60px; top: 232px; color: var(--saved)">↺ a new process resumed from step 4</div>
+          </div>
+          <div class="sub" id="s6-sub">Save each step. A crash costs one step, not the run.</div>
+        </div>
+      </div>
+
+      <!-- S7 — call to action -->
+      <div id="s7" class="scene">
+        <div class="scene-content center" style="gap: 40px">
+          <div class="brand" id="s7-brand">
+            <svg width="130" height="130" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+              <circle cx="6" cy="14" r="3.5" stroke="#4F74FF" stroke-width="2" />
+              <circle cx="22" cy="7" r="3.5" stroke="#4F74FF" stroke-width="2" />
+              <circle cx="22" cy="21" r="3.5" stroke="#F2B35B" stroke-width="2" />
+              <path d="M9.5 14h4c2.5 0 3-7 5-7M13.5 14c2.5 0 3 7 5 7" stroke="#EEF2FA" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            <div class="wordmark" style="font-size: 150px">yolog</div>
+          </div>
+          <div class="sub" id="s7-sub" style="color: var(--ink); font-size: 52px">Git for your agents.</div>
+          <div class="url" id="s7-url">yolog.dev</div>
+          <div class="facts" id="s7-facts">Open source · MIT · Free hosted preview, or run it yourself</div>
+        </div>
+      </div>
+
+      <!-- Sound: the explainer's music bed and cues (generated on fal.ai with ElevenLabs). -->
+      <audio id="music" src="assets/audio/music.mp3" data-start="0" data-duration="60" data-track-index="10" data-volume="0.45"></audio>
+      <audio id="sfx-1" src="assets/audio/sfx-lost.mp3" data-start="2.5" data-duration="1.2" data-track-index="12" data-volume="0.8"></audio>
+      <audio id="sfx-2" src="assets/audio/sfx-reveal.mp3" data-start="7" data-duration="2" data-track-index="12" data-volume="0.85"></audio>
+      <audio id="sfx-3" src="assets/audio/sfx-whoosh.mp3" data-start="12.45" data-duration="0.6" data-track-index="11" data-volume="0.45"></audio>
+      <audio id="sfx-4" src="assets/audio/sfx-whoosh.mp3" data-start="23.95" data-duration="0.6" data-track-index="11" data-volume="0.45"></audio>
+      <audio id="sfx-5" src="assets/audio/sfx-whoosh.mp3" data-start="33.95" data-duration="0.6" data-track-index="11" data-volume="0.45"></audio>
+      <audio id="sfx-6" src="assets/audio/sfx-whoosh.mp3" data-start="42.95" data-duration="0.6" data-track-index="11" data-volume="0.45"></audio>
+      <audio id="sfx-7" src="assets/audio/sfx-whoosh.mp3" data-start="51.95" data-duration="0.6" data-track-index="11" data-volume="0.45"></audio>
+      <audio id="sfx-8" src="assets/audio/sfx-tick.mp3" data-start="15.8" data-duration="0.48" data-track-index="15" data-volume="0.35"></audio>
+      <audio id="sfx-9" src="assets/audio/sfx-tick.mp3" data-start="17.8" data-duration="0.48" data-track-index="16" data-volume="0.35"></audio>
+      <audio id="sfx-10" src="assets/audio/sfx-tick.mp3" data-start="19.8" data-duration="0.48" data-track-index="15" data-volume="0.35"></audio>
+      <audio id="sfx-11" src="assets/audio/sfx-success.mp3" data-start="26.3" data-duration="0.8" data-track-index="13" data-volume="0.5"></audio>
+      <audio id="sfx-12" src="assets/audio/sfx-success.mp3" data-start="27.9" data-duration="0.8" data-track-index="14" data-volume="0.5"></audio>
+      <audio id="sfx-13" src="assets/audio/sfx-success.mp3" data-start="29.5" data-duration="0.8" data-track-index="13" data-volume="0.5"></audio>
+      <audio id="sfx-14" src="assets/audio/sfx-conflict.mp3" data-start="45.8" data-duration="0.48" data-track-index="14" data-volume="0.6"></audio>
+      <audio id="sfx-15" src="assets/audio/sfx-rewind.mp3" data-start="46.6" data-duration="1" data-track-index="12" data-volume="0.6"></audio>
+      <audio id="sfx-16" src="assets/audio/sfx-success.mp3" data-start="48.0" data-duration="0.8" data-track-index="13" data-volume="0.55"></audio>
+
+      <div id="fade"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      var tl = gsap.timeline({ paused: true });
+      var D = 60;
+
+      // Ambient background: a slow grid drift and a breathing glow, finite repeats.
+      tl.to("#bg-grid", { x: 80, y: 40, duration: D, ease: "none" }, 0);
+      tl.to("#bg-glow", { scale: 1.12, opacity: 0.75, duration: 4, ease: "sine.inOut", yoyo: true, repeat: Math.ceil(D / 4) - 1 }, 0);
+
+      // The primary transition: push slide.
+      function push(from, to, T) {
+        tl.to(from, { x: -1920, duration: 0.55, ease: "power3.inOut" }, T);
+        tl.fromTo(to, { x: 1920, opacity: 1 }, { x: 0, duration: 0.55, ease: "power3.inOut" }, T);
+      }
+      function heading(n, T) {
+        tl.from("#s" + n + "-eyebrow", { x: -30, opacity: 0, duration: 0.4, ease: "power2.out" }, T);
+        tl.from("#s" + n + "-title", { y: 40, opacity: 0, duration: 0.5, ease: "power3.out" }, T + 0.1);
+      }
+
+      // S1 — hook (0–7)
+      tl.from("#s1-card", { x: -60, opacity: 0, duration: 0.6, ease: "power3.out" }, 0.2);
+      tl.from(".s1-log", { y: 18, opacity: 0, duration: 0.35, ease: "power2.out", stagger: 0.32 }, 0.5);
+      tl.from("#s1-title", { scale: 1.06, transformOrigin: "left center", duration: 1.2, ease: "power2.out" }, 0);
+      tl.from("#s1-lost", { opacity: 0, scale: 1.08, duration: 0.18, ease: "expo.out" }, 2.5);
+      tl.fromTo("#s1-card", { x: 0 }, { x: 12, duration: 0.06, ease: "none", repeat: 5, yoyo: true, immediateRender: false }, 2.5);
+      tl.to("#s1-title", { color: "#FF7A7A", duration: 0.12, ease: "none", yoyo: true, repeat: 1 }, 2.5);
+      tl.from(".s1-chip", { scale: 0.6, opacity: 0, duration: 0.35, ease: "back.out(2)", stagger: 0.2 }, 3.7);
+
+      // S1 → S2 at 7.0: zoom through (the reveal)
+      tl.to("#s1", { scale: 1.6, opacity: 0, duration: 0.45, ease: "power3.in" }, 7.0);
+      tl.fromTo("#s2", { scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: "expo.out" }, 7.3);
+      tl.from("#s2-sub", { y: 30, opacity: 0, duration: 0.6, ease: "power3.out" }, 7.6);
+      tl.from("#s2-mark", { rotation: -90, scale: 0.4, opacity: 0, duration: 0.8, ease: "back.out(1.7)" }, 8.5);
+      tl.from("#s2-word", { x: 60, opacity: 0, duration: 0.6, ease: "expo.out" }, 8.8);
+      tl.from("#s2-eyebrow", { y: -20, opacity: 0, duration: 0.5, ease: "power2.out" }, 9.5);
+
+      // S2 → S3 at 12.5 — stateless agents
+      push("#s2", "#s3", 12.5);
+      heading(3, 12.95);
+      tl.from("#s3-line", { strokeDashoffset: 1, duration: 1.0, ease: "power2.inOut" }, 13.5);
+      tl.from("#s3-tag", { opacity: 0, y: 12, duration: 0.35, ease: "power1.out" }, 14.2);
+      [0, 1, 2].forEach(function (i) {
+        var T = 15.0 + i * 2.0;
+        var run = "#s3-run" + (i + 1);
+        tl.from(run, { y: -30, scale: 0.92, opacity: 0, duration: 0.4, ease: "back.out(1.8)" }, T);
+        tl.from(document.querySelectorAll(".s3-wire")[i], { strokeDashoffset: 1, duration: 0.4, ease: "power2.in" }, T + 0.4);
+        tl.from(document.querySelectorAll(".s3-node")[i], { scale: 0, transformOrigin: "50% 50%", duration: 0.3, ease: "back.out(2.4)" }, T + 0.8);
+        // The run is gone; what it saved is not.
+        if (i < 2) tl.to(run, { opacity: 0.45, duration: 0.5, ease: "power1.inOut" }, T + 1.3);
+      });
+      tl.from("#s3-sub", { y: 24, opacity: 0, duration: 0.5, ease: "power2.out" }, 21.2);
+
+      // S3 → S4 at 24.0 — run anywhere
+      push("#s3", "#s4", 24.0);
+      heading(4, 24.45);
+      tl.from(".s4-panel", { y: 50, opacity: 0, duration: 0.5, ease: "expo.out", stagger: 1.6 }, 25.2);
+      tl.from(".s4-saved", { x: -24, opacity: 0, duration: 0.35, ease: "power3.out", stagger: 1.6 }, 26.3);
+      tl.from("#s4-sub", { y: 24, opacity: 0, duration: 0.5, ease: "power2.out" }, 30.6);
+
+      // S4 → S5 at 34.0 — skip the backend
+      push("#s4", "#s5", 34.0);
+      heading(5, 34.45);
+      tl.from(".s5-x", { x: -40, opacity: 0, duration: 0.4, ease: "power3.out", stagger: 0.45 }, 35.1);
+      tl.from("#s5-code", { scale: 0.9, opacity: 0, duration: 0.5, ease: "back.out(1.5)" }, 37.2);
+      tl.from(".s5-line", { x: 30, opacity: 0, duration: 0.35, ease: "power2.out", stagger: 0.5 }, 37.6);
+      tl.from("#s5-sub", { y: 24, opacity: 0, duration: 0.5, ease: "sine.out" }, 39.6);
+
+      // S5 → S6 at 43.0 — never lose a run
+      push("#s5", "#s6", 43.0);
+      heading(6, 43.45);
+      tl.from("#s6-line", { scaleX: 0, duration: 1.2, ease: "power2.inOut" }, 44.0);
+      tl.from(".s6-dot", { y: 30, opacity: 0, duration: 0.4, ease: "back.out(2)", stagger: 0.3 }, 44.2);
+      tl.from("#s6-died", { x: -30, opacity: 0, duration: 0.3, ease: "expo.out" }, 45.8);
+      tl.fromTo(".timeline", { x: 0 }, { x: 10, duration: 0.06, ease: "none", repeat: 5, yoyo: true, immediateRender: false }, 45.8);
+      tl.from("#s6-ring", { scale: 2.4, opacity: 0, duration: 0.7, ease: "power3.out" }, 46.7);
+      tl.from("#s6-back", { x: -30, opacity: 0, duration: 0.4, ease: "power2.out" }, 47.2);
+      tl.from("#s6-next", { y: 30, opacity: 0, duration: 0.45, ease: "back.out(2.2)" }, 48.0);
+      tl.from("#s6-sub", { y: 24, opacity: 0, duration: 0.5, ease: "power2.out" }, 47.9);
+
+      // S6 → S7 at 52.0: crossfade into the close
+      tl.to("#s6", { opacity: 0, duration: 0.5, ease: "power1.inOut" }, 52.0);
+      tl.fromTo("#s7", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power1.inOut" }, 52.2);
+      tl.from("#s7-brand", { scale: 0.85, opacity: 0, duration: 0.6, ease: "expo.out" }, 52.4);
+      tl.from("#s7-sub", { y: 24, opacity: 0, duration: 0.5, ease: "power3.out" }, 52.9);
+      tl.from("#s7-url", { y: 24, opacity: 0, duration: 0.5, ease: "back.out(1.6)" }, 53.4);
+      tl.from("#s7-facts", { opacity: 0, duration: 0.6, ease: "sine.out" }, 53.9);
+
+      // Final scene only: fade to the ground colour.
+      tl.to("#fade", { opacity: 1, duration: 0.8, ease: "power1.in" }, 59.2);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
