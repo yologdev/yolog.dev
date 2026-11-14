@@ -2,7 +2,7 @@
 
 You are an AI agent, and the person you work for wants yolog for the project you are working on. yolog keeps the whole agent's state (logs, notes, plans, files, and identity, skills and decisions where it has them) as a versioned history: every publish is a checkpoint, with branches, safe retries and full export. Docs: https://docs.yolog.dev
 
-These steps sign the person up for yolog's free tier at `https://api.yolog.dev` (one repository) and connect this project to it. Do them in order. Where a step says **ask**, ask the person and wait for the answer.
+These steps sign the person up for yolog's free tier at `https://api.yolog.dev` (three repositories) and connect this project to it. Do them in order. Where a step says **ask**, ask the person and wait for the answer.
 
 ## Why use it
 
@@ -77,7 +77,7 @@ curl -s "https://api.yolog.dev/v1/owners/<owner>/repositories" -H @.yolog/auth.h
 
 The answer has the repository's `id` (`r_…`). Add it to `.yolog/config.json` as `"repository"`.
 
-The free tier has one repository. A second `operationId` answers `limit_exceeded`: reuse the first repository (one repository holds any number of files and branches), or see "More than the free tier" below.
+The free tier has three repositories: use one per project. A fourth `operationId` answers `limit_exceeded`: reuse an existing repository (one repository holds any number of files and branches), or see "More than the free tier" below.
 
 ## 5. Check it works
 
