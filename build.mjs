@@ -355,7 +355,7 @@ document.getElementById("copy").addEventListener("click", async (e) => {
 // --- /privacy: what the hosted preview keeps, in plain words. Every claim here
 // is a fact about api.yolog.dev's code or configuration: change them together.
 const CONTACT = "privacy@yolog.dev";
-const PRIVACY_DATE = "18 November 2026";
+const PRIVACY_DATE = "17 November 2026";
 const psec = (title, body) => `<section style="display: flex; flex-direction: column; gap: 14px"><h2 style="margin: 0; ${G}; font-weight: 700; font-size: 26px; letter-spacing: -0.03em; color: #FFFFFF">${title}</h2>${body}</section>`;
 const pp = (t) => `<p style="margin: 0; font-size: 17px; line-height: 1.65; color: #B4BDD0">${t}</p>`;
 const pl = (items) => `<ul style="margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; font-size: 17px; line-height: 1.6; color: #B4BDD0">${items.map((i) => `<li>${i}</li>`).join("")}</ul>`;
