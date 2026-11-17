@@ -154,7 +154,7 @@ ${h2("faq", "Questions.")}
 ${faq("Why not just save JSON to a bucket?", "If you only need the latest copy, a bucket is simpler, and enough. yolog is for what a bucket can't give you: every version kept, branches, several writers without lost updates, retries that never write twice, and history that moves between machines with the same ids.")}
 ${faq("Can agents collaborate in real time?", "Not yet. Agents can share a branch safely, fork their own, and follow a change feed. Live updates pushed to subscribers, and merging branches, are planned.")}
 ${faq("Where is my data stored?", "Wherever you run yolog: in your own Cloudflare account (Durable Objects, Artifacts and R2), or on your own machine. On the hosted preview it is in ours. You can export everything at any time and write it out as plain Git.")}
-${faq("Is there a hosted version?", "A free preview: your coding agent signs you up with your email, you get three repositories, and you read what it saved at app.yolog.dev. It is a preview: no paid plans yet, no independent security review, and no promise about how long it runs as it is. For anything sensitive, or for more than three repositories, run yolog yourself.")}
+${faq("Is there a hosted version?", "A free preview, by invitation for now: with an invite, your coding agent signs you up with your email, you get three repositories, and you read what it saved at app.yolog.dev. It is a preview: no paid plans yet, no independent security review, and no promise about how long it runs as it is. For anything sensitive, or for more than three repositories, run yolog yourself.")}
 ${faq("Do I need Cloudflare?", "No. The same build runs standalone on your machine under workerd, offline if you like. Cloudflare is one place to run it, not a requirement.")}
 ${faq("Which agents can use it?", "Any agent that can make HTTP requests. Yo uses it today, GASP agents are checked against the GASP conformance checker, and Claude Code, Codex and other coding agents connect with one line, or through yolog's MCP connector.")}
 ${faq("Is it open source?", "It will be, under the MIT license. yolog is in private development now; the repository opens when the self-hosted release is tested.")}
@@ -300,6 +300,7 @@ a{color:${BLUE_L}}a:hover{color:#FFFFFF}
 <p style="margin: 0; ${M}; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: ${BLUE_L}">Set up with your agent</p>
 <h1 style="margin: 0; ${G}; font-weight: 700; font-size: clamp(40px, 6.4vw, 80px); line-height: 0.98; letter-spacing: -0.045em; max-width: 11em">Let your agent set up <span style="color: ${AMBER}">yolog.</span></h1>
 <p style="margin: 0; font-size: clamp(18px, 1.7vw, 21px); line-height: 1.6; color: #B4BDD0; max-width: 38rem">Paste this line into Claude Code, Codex or any coding agent that can run commands. It asks for your email, you read it the code we send, and the project it is working on keeps its state in yolog. Free while it is a preview, three repositories.</p>
+<p style="margin: 0; font-size: 16px; line-height: 1.6; color: #B4BDD0; max-width: 38rem">New accounts are by invitation for now: your invite link gives you this line with your code in it. Already signed up? It works as it is. Without an invite, <a href="https://docs.yolog.dev/start/quick-start/" style="color: #8BA2FF">run yolog yourself</a>.</p>
 <div style="display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; max-width: 860px">
 <code id="prompt" style="flex: 1 1 420px; min-width: 0; display: flex; align-items: center; padding: 18px 20px; border-radius: 12px; background: #131B2E; border: 1px solid #2A3654; ${M}; font-size: 16px; line-height: 1.5; color: #EEF2FA; overflow-wrap: anywhere">${PROMPT}</code>
 <span id="copy-status" role="status" aria-live="polite" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap"></span>
@@ -354,7 +355,7 @@ document.getElementById("copy").addEventListener("click", async (e) => {
 // --- /privacy: what the hosted preview keeps, in plain words. Every claim here
 // is a fact about api.yolog.dev's code or configuration: change them together.
 const CONTACT = "privacy@yolog.dev";
-const PRIVACY_DATE = "17 November 2026";
+const PRIVACY_DATE = "18 November 2026";
 const psec = (title, body) => `<section style="display: flex; flex-direction: column; gap: 14px"><h2 style="margin: 0; ${G}; font-weight: 700; font-size: 26px; letter-spacing: -0.03em; color: #FFFFFF">${title}</h2>${body}</section>`;
 const pp = (t) => `<p style="margin: 0; font-size: 17px; line-height: 1.65; color: #B4BDD0">${t}</p>`;
 const pl = (items) => `<ul style="margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; font-size: 17px; line-height: 1.6; color: #B4BDD0">${items.map((i) => `<li>${i}</li>`).join("")}</ul>`;
@@ -409,7 +410,8 @@ ${psec("What we keep", pl([
   `${pb("A keyed hash of your mailbox,")} with the account it belongs to. It is how the same email finds the same account.`,
   `${pb("Sign-in and sign-up codes,")} as hashes, for the 10 minutes they work, and the times codes were sent to a mailbox, to limit how many go out.`,
   `${pb("Request logs.")} For each change, and each request that fails: the time, the kind of request, the result, your account id, the repository id and a request id. No file contents, no email address, no IP address. They are kept for about 7 days.`,
-  `${pb("An activity log for your account.")} Each sign-in, each token and share link made or revoked, each public page made or ended, and each repository created, deleted or restored: the time, the id of the token that did it, and what it covered (the repository, and the paths of a share link). No file contents, and no record of who read what. You can read it under Activity in the viewer.`,
+  `${pb("Invites.")} For each invite: a note on who it is for (a name, never an email address), how many accounts it may make, when it ends, and which accounts it made. The invite code itself is not kept, only a keyed hash of it.`,
+  `${pb("An activity log for your account.")} Your sign-up (with the invite it used, if any), each sign-in, each token and share link made or revoked, each public page made or ended, and each repository created, deleted or restored: the time, the id of the token that did it, and what it covered (the repository, and the paths of a share link). No file contents, and no record of who read what. You can read it under Activity in the viewer.`,
   `${pb("The ids of tokens you revoked,")} until those tokens would have expired, so that they stay refused.`,
 ]))}
 ${psec("What we do not keep", pl([
@@ -421,7 +423,7 @@ ${psec("What we do not keep", pl([
 ]))}
 ${psec("Public pages", pl([
   `${pb("You choose what is public.")} When you publish a file or folder, anyone who has its address at files.yolog.dev can read it, with no account, until you unpublish it. Only the version you chose is public, not its history or any other file.`,
-  `${pb("Unpublishing")} stops the address at once. A browser that already had the page open may keep its copy for up to 5 minutes.`,
+  `${pb("Unpublishing")} stops the address within two minutes: a page is kept for a minute, by Cloudflare near each visitor and by the visitor's browser.`,
   `${pb("Visitors:")} we do not record who opens a page. Their IP address is used for about a minute to limit requests from one network, and is not written to our logs. Pages ask search engines not to list them.`,
   `${pb("Reports:")} each page has a "Report this page" link to <a href="mailto:${CONTACT}">${CONTACT}</a>. We may take down a page that breaks the law or harms others; it then stays down, and the takedown is recorded in your activity log.`,
 ]))}

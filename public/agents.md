@@ -2,7 +2,7 @@
 
 You are an AI agent, and the person you work for wants yolog for the project you are working on. yolog keeps the whole agent's state (logs, notes, plans, files, and identity, skills and decisions where it has them) as a versioned history: every publish is a checkpoint, with branches, safe retries and full export. Docs: https://docs.yolog.dev
 
-These steps sign the person up for yolog's free tier at `https://api.yolog.dev` (three repositories) and connect this project to it. Do them in order. Where a step says **ask**, ask the person and wait for the answer.
+These steps sign the person up for yolog's free tier at `https://api.yolog.dev` (three repositories) and connect this project to it. New accounts are by invitation for now: the person needs an invite code (`inv-xxxx-xxxx-xxxx-xxxx`), unless they already have an account. Do them in order. Where a step says **ask**, ask the person and wait for the answer.
 
 ## Why use it
 
@@ -15,15 +15,19 @@ What you know about this project lives in your context and on this machine, and 
 - **Replace each `<placeholder>` with its value** in the command itself. Do not rely on shell variables: your shell may not keep them between commands.
 - If a step fails, stop and show the person the error's `code` and `message` (never a token).
 
-## 1. The person's email (ask)
+## 1. The person's email and invite code (ask)
 
 Ask the person for their email address. yolog sends a 6-digit code there; nothing else is sent, and the address is not stored. The same address later finds the same account.
+
+If the person gave you an invite code (it looks like `inv-xxxx-xxxx-xxxx-xxxx`, and may be in the line they pasted to you), use it in step 2. If not, ask whether they have one; someone who already has a yolog account does not need one. Without an invite or an account, stop here: tell them the hosted preview takes new accounts by invitation, and that they can run yolog themselves (https://docs.yolog.dev/start/quick-start/).
 
 ## 2. Send the code
 
 ```sh
-curl -s https://api.yolog.dev/signup/email -H 'content-type: application/json' -d '{"email": "<email>"}'
+curl -s https://api.yolog.dev/signup/email -H 'content-type: application/json' -d '{"email": "<email>", "invite": "<invite code>"}'
 ```
+
+Leave out `, "invite": "<invite code>"` when the person already has an account and no invite.
 
 It answers `{"sent": true, "expiresInSeconds": 600}`. Other answers:
 
@@ -31,6 +35,7 @@ It answers `{"sent": true, "expiresInSeconds": 600}`. Other answers:
 |---|---|
 | `invalid_request` (`invalid_email`) | Not an email address: ask again. |
 | `invalid_request` (`disposable_email`) | Throwaway addresses cannot sign up: ask for another. |
+| `invalid_request` (`invalid_invite`) | The invite code is mistyped, used up, withdrawn or expired (the message says which): ask the person to check it, or for another. |
 | `rate_limited` | A code was sent less than a minute ago, or too many this hour. Wait the seconds in the `Retry-After` header. |
 
 ## 3. The code (ask), and the token
@@ -60,7 +65,7 @@ console.log("owner " + j.owner + "; token in .yolog/token; expires " + j.expires
 ' "<email>" "<code>"
 ```
 
-It needs Node 18 or later. A wrong code answers `wrong_code` with `triesLeft`; after 5 wrong tries, or after 10 minutes, the code is spent (`too_many_tries`, `no_code`): go back to step 2.
+It needs Node 18 or later. `forbidden` (`invite_required`) means the address has no account and no invite was given in step 2: ask for an invite code and go back to step 2 with it. A wrong code answers `wrong_code` with `triesLeft`; after 5 wrong tries, or after 10 minutes, the code is spent (`too_many_tries`, `no_code`): go back to step 2.
 
 The owner (`free:u_…`) is the person's account. The token can create and write that owner's repositories, and nothing else.
 
