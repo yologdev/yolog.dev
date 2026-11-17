@@ -175,7 +175,7 @@ const html = `<!doctype html>
 <meta charset="utf-8">
 <title>yolog — Git for your agents</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Versioned, portable state for AI agents: everything they save, with append-only history, checkpoints and branches. Run it on Cloudflare or your own machine, or try the free hosted preview.">
+<meta name="description" content="Versioned, portable state for AI agents: everything they save, with append-only history, checkpoints and branches. Run it on Cloudflare or your own machine, or the free hosted preview (by invitation).">
 <meta property="og:title" content="yolog — Git for your agents">
 <meta property="og:description" content="Versioned, portable state for AI agents: history, checkpoints and branches for everything they save. Run it anywhere.">
 <meta property="og:image" content="https://yolog.dev/media/yolog-30s-poster.jpg">
@@ -265,7 +265,7 @@ const agentsHtml = `<!doctype html>
 <meta charset="utf-8">
 <title>Set up yolog with your agent</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Paste one line into Claude Code, Codex or any coding agent: it signs you up for yolog's free tier with your email and connects your project.">
+<meta name="description" content="Paste one line into Claude Code, Codex or any coding agent: with an invite, it signs you up for yolog's free preview with your email and connects your project.">
 <meta property="og:title" content="Set up yolog with your agent">
 <meta property="og:description" content="One line for your coding agent, and your project keeps its agents' state as a versioned history.">
 <meta property="og:image" content="https://yolog.dev/media/yolog-30s-poster.jpg">
@@ -312,7 +312,7 @@ a{color:${BLUE_L}}a:hover{color:#FFFFFF}
 <div style="display: flex; flex-direction: column; gap: 20px">
 <h2 style="margin: 0; ${G}; font-weight: 700; font-size: 28px; letter-spacing: -0.03em">What your agent does</h2>
 <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 20px">
-${step("01", "Asks for your email", "We send a 6-digit code there. Nothing else.")}
+${step("01", "Asks for your email and invite", "We send a 6-digit code there. Nothing else.")}
 ${step("02", "Asks you for the code", "It signs you up with it and gets a token for your account.")}
 ${step("03", "Keeps the token private", "In a file only you can read, in a folder Git ignores.")}
 ${step("04", "Creates the project's repository", "Then publishes a first checkpoint and reads it back, to prove it works.")}
@@ -410,8 +410,8 @@ ${psec("What we keep", pl([
   `${pb("A keyed hash of your mailbox,")} with the account it belongs to. It is how the same email finds the same account.`,
   `${pb("Sign-in and sign-up codes,")} as hashes, for the 10 minutes they work, and the times codes were sent to a mailbox, to limit how many go out.`,
   `${pb("Request logs.")} For each change, and each request that fails: the time, the kind of request, the result, your account id, the repository id and a request id. No file contents, no email address, no IP address. They are kept for about 7 days.`,
-  `${pb("Invites.")} For each invite: a note on who it is for (a name, never an email address), how many accounts it may make, when it ends, and which accounts it made. The invite code itself is not kept, only a keyed hash of it.`,
-  `${pb("An activity log for your account.")} Your sign-up (with the invite it used, if any), each sign-in, each token and share link made or revoked, each public page made or ended, and each repository created, deleted or restored: the time, the id of the token that did it, and what it covered (the repository, and the paths of a share link). No file contents, and no record of who read what. You can read it under Activity in the viewer.`,
+  `${pb("Invites.")} For each invite: a note on who it is for (a name, never an email address), how many accounts it may make, when it was made, ends or was withdrawn, and which accounts it made. The invite code itself is not kept, only a keyed hash of it.`,
+  `${pb("An activity log for your account.")} Your sign-up (with the id of the invite it used, if any), each new token your agent gets by email code, each sign-in, each token and share link made or revoked, each public page made or ended, and each repository created, deleted or restored: the time, the id of the token that did it, and what it covered (the repository, and the paths of a share link). No file contents, and no record of who read what. You can read it under Activity in the viewer.`,
   `${pb("The ids of tokens you revoked,")} until those tokens would have expired, so that they stay refused.`,
 ]))}
 ${psec("What we do not keep", pl([
@@ -435,6 +435,7 @@ ${psec("How long", pl([
   `${pb("Repositories:")} until they are deleted. A deleted repository can be restored for 3 days, then its contents are removed. Cloudflare's own storage recovery can hold removed data for up to 30 days more.`,
   `${pb("Request logs:")} about 7 days.`,
   `${pb("The activity log:")} 180 days, and at most the newest 10,000 entries per account. It is deleted with the account.`,
+  `${pb("Invites:")} until we delete them. When an account is deleted, its id is taken off the invite it used.`,
   `${pb("Backups:")} none are taken yet. When they start, they will be encrypted copies kept for 30 days, and this page will say so.`,
 ]))}
 ${psec("Delete your account", `${pp(`Write to <a href="mailto:${CONTACT}">${CONTACT}</a> from the address you signed up with. We delete your repositories, your activity log and the hash of your mailbox, and tell you when it is done. The same address works for a copy of your data, or any question about this page.`)}${pp(`You can also read everything we hold for you yourself: sign in at <a href="https://app.yolog.dev">app.yolog.dev</a>, or use the <a href="https://docs.yolog.dev/reference/http-api/">API</a> with your token.`)}`)}
