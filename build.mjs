@@ -354,7 +354,7 @@ document.getElementById("copy").addEventListener("click", async (e) => {
 // --- /privacy: what the hosted preview keeps, in plain words. Every claim here
 // is a fact about api.yolog.dev's code or configuration: change them together.
 const CONTACT = "privacy@yolog.dev";
-const PRIVACY_DATE = "14 November 2026";
+const PRIVACY_DATE = "17 November 2026";
 const psec = (title, body) => `<section style="display: flex; flex-direction: column; gap: 14px"><h2 style="margin: 0; ${G}; font-weight: 700; font-size: 26px; letter-spacing: -0.03em; color: #FFFFFF">${title}</h2>${body}</section>`;
 const pp = (t) => `<p style="margin: 0; font-size: 17px; line-height: 1.65; color: #B4BDD0">${t}</p>`;
 const pl = (items) => `<ul style="margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; font-size: 17px; line-height: 1.6; color: #B4BDD0">${items.map((i) => `<li>${i}</li>`).join("")}</ul>`;
@@ -396,7 +396,7 @@ a{color:${BLUE_L}}a:hover{color:#FFFFFF}
 <section style="display: flex; flex-direction: column; gap: 20px">
 <p style="margin: 0; ${M}; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: ${BLUE_L}">Privacy · updated ${PRIVACY_DATE}</p>
 <h1 style="margin: 0; ${G}; font-weight: 700; font-size: clamp(38px, 6vw, 68px); line-height: 1; letter-spacing: -0.045em">What we keep, and what we <span style="color: ${AMBER}">don't.</span></h1>
-${pp(`This page covers the hosted yolog: api.yolog.dev, <a href="https://app.yolog.dev">app.yolog.dev</a> and this site. It is a free preview. A yolog you run yourself sends us nothing, and none of this applies to it.`)}
+${pp(`This page covers the hosted yolog: api.yolog.dev, <a href="https://app.yolog.dev">app.yolog.dev</a>, files.yolog.dev and this site. It is a free preview. A yolog you run yourself sends us nothing, and none of this applies to it.`)}
 </section>
 ${psec("The short version", pl([
   `We keep ${pb("what your agents save")}, so you and they can read it back.`,
@@ -409,18 +409,25 @@ ${psec("What we keep", pl([
   `${pb("A keyed hash of your mailbox,")} with the account it belongs to. It is how the same email finds the same account.`,
   `${pb("Sign-in and sign-up codes,")} as hashes, for the 10 minutes they work, and the times codes were sent to a mailbox, to limit how many go out.`,
   `${pb("Request logs.")} For each change, and each request that fails: the time, the kind of request, the result, your account id, the repository id and a request id. No file contents, no email address, no IP address. They are kept for about 7 days.`,
-  `${pb("An activity log for your account.")} Each sign-in, each token and share link made or revoked, and each repository created, deleted or restored: the time, the id of the token that did it, and what it covered (the repository, and the paths of a share link). No file contents, and no record of who read what. You can read it under Activity in the viewer.`,
+  `${pb("An activity log for your account.")} Each sign-in, each token and share link made or revoked, each public page made or ended, and each repository created, deleted or restored: the time, the id of the token that did it, and what it covered (the repository, and the paths of a share link). No file contents, and no record of who read what. You can read it under Activity in the viewer.`,
   `${pb("The ids of tokens you revoked,")} until those tokens would have expired, so that they stay refused.`,
 ]))}
 ${psec("What we do not keep", pl([
   `${pb("Your email address.")} It is used to send the code and then dropped.`,
   `${pb("Your tokens.")} They are signed, not stored: we keep only a token's id, in the activity log and when you revoke it. A token in your browser stays in your browser. A share link is a token too, so the link itself is not stored either.`,
   `${pb("Your IP address.")} It is used for about a minute to limit sign-up and sign-in attempts from one network, and is not written to our logs.`,
-  `${pb("Cookies or trackers on app.yolog.dev.")} The viewer loads nothing from other sites.`,
+  `${pb("Cookies or trackers on app.yolog.dev or files.yolog.dev.")} The viewer and public pages load nothing from other sites.`,
+  `${pb("Who opens a public page.")} Opening one is not recorded.`,
+]))}
+${psec("Public pages", pl([
+  `${pb("You choose what is public.")} When you publish a file or folder, anyone who has its address at files.yolog.dev can read it, with no account, until you unpublish it. Only the version you chose is public, not its history or any other file.`,
+  `${pb("Unpublishing")} stops the address at once. A browser that already had the page open may keep its copy for up to 5 minutes.`,
+  `${pb("Visitors:")} we do not record who opens a page. Their IP address is used for about a minute to limit requests from one network, and is not written to our logs. Pages ask search engines not to list them.`,
+  `${pb("Reports:")} each page has a "Report this page" link to <a href="mailto:${CONTACT}">${CONTACT}</a>. We may take down a page that breaks the law or harms others; it then stays down, and the takedown is recorded in your activity log.`,
 ]))}
 ${psec("Who else handles it", pl([
   `${pb("Cloudflare")} runs the service and stores the repositories. It also delivers the code emails, so it sees your address to deliver them, and as the network it sees your IP address.`,
-  `${pb("PostHog")} counts page views and clicks on yolog.dev and docs.yolog.dev, in the United States. It keeps an anonymous identifier in your browser. It is not on app.yolog.dev or api.yolog.dev.`,
+  `${pb("PostHog")} counts page views and clicks on yolog.dev and docs.yolog.dev, in the United States. It keeps an anonymous identifier in your browser. It is not on app.yolog.dev, files.yolog.dev or api.yolog.dev.`,
 ]))}
 ${psec("How long", pl([
   `${pb("Repositories:")} until they are deleted. A deleted repository can be restored for 3 days, then its contents are removed. Cloudflare's own storage recovery can hold removed data for up to 30 days more.`,
